@@ -9,7 +9,7 @@ import {
 } from "../controllers/SupplierController";
 import { protect, authorize } from "../middleware/Auth";
 
-const router = Router();
+const router: Router = Router();
 
 router.get("/", protect, getAllSuppliers);
 router.get("/:id", protect, getSupplierById);

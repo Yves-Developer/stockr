@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { getDashboardStats } from "../controllers/Dashboardcontroller";
+import { getDashboardStats } from "../controllers/DashboardController";
 import { protect } from "../middleware/Auth";
 
-const router = Router();
+const router: Router = Router();
 
 router.get("/", protect, getDashboardStats);
 

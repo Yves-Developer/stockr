@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import StockMovement from "../models/Stockmovement";
+import StockMovement from "../models/StockMovement";
 import Product from "../models/Product";
 
 // ─── GET /api/stock-movements ─────────────────────────────────────────────────
