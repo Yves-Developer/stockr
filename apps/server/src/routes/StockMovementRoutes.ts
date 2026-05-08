@@ -5,10 +5,10 @@ import {
   getMovementsByProduct,
   createStockMovement,
   deleteStockMovement,
-} from "../controllers/StockMovementContRoller";
+} from "../controllers/StockMovementController";
 import { protect, authorize } from "../middleware/Auth";
 
-const router = Router();
+const router: Router = Router();
 
 router.get("/", protect, getAllStockMovements);
 router.get("/:id", protect, getStockMovementById);

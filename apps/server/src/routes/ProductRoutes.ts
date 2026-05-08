@@ -8,7 +8,7 @@ import {
 } from "../controllers/ProductController";
 import { protect, authorize } from "../middleware/Auth";
 
-const router = Router();
+const router: Router = Router();
 
 router.get("/", protect, getAllProducts);
 router.get("/:id", protect, getProductById);

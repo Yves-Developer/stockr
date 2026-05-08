@@ -4,15 +4,15 @@ dotenv.config(); // ← MUST be first before any other imports
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import { connectDB, disconnectDB } from "./config/db";
-import { errorHandler, notFound } from "./middleware/Errorhandler";
+import { errorHandler, notFound } from "./middleware/ErrorHandler";
 
 // Routes
 import authRoutes from "./routes/AuthRoutes";
-import categoryRoutes from "./routes/Categoryroutes";
+import categoryRoutes from "./routes/CategoryRoutes";
 import supplierRoutes from "./routes/SupplierRoutes";
-import productRoutes from "./routes/Productroutes";
-import stockMovementRoutes from "./routes/StockMovementrouts";
-import dashboardRoutes from "./routes/Dashboardroutes";
+import productRoutes from "./routes/ProductRoutes";
+import stockMovementRoutes from "./routes/StockMovementRoutes";
+import dashboardRoutes from "./routes/DashboardRoutes";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;

@@ -8,7 +8,7 @@ import {
 } from "../controllers/CategoryController";
 import { protect, authorize } from "../middleware/Auth";
 
-const router = Router();
+const router: Router = Router();
 
 router.get("/", protect, getAllCategories);
 router.get("/:id", protect, getCategoryById);
