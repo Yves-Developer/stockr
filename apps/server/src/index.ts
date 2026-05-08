@@ -1,9 +1,18 @@
 import dotenv from "dotenv";
-dotenv.config(); // ← must run FIRST before anything else
+dotenv.config(); // ← MUST be first before any other imports
 
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import { connectDB, disconnectDB } from "./config/db";
+import { errorHandler, notFound } from "./middleware/Errorhandler";
+
+// Routes
+import authRoutes from "./routes/AuthRoutes";
+import categoryRoutes from "./routes/Categoryroutes";
+import supplierRoutes from "./routes/SupplierRoutes";
+import productRoutes from "./routes/Productroutes";
+import stockMovementRoutes from "./routes/StockMovementrouts";
+import dashboardRoutes from "./routes/Dashboardroutes";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -15,28 +24,33 @@ app.use(express.urlencoded({ extended: true }));
 
 // ---------- Routes ----------
 app.get("/", (_req: Request, res: Response) => {
-  res.json({ message: "🚀 Inventory API is running" });
+  res.json({ message: "🚀 Stockr Inventory API is running" });
 });
 
 app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// TODO: Mount inventory routes here once ready
-// import inventoryRoutes from "./routes/inventory";
-// app.use("/api/inventory", inventoryRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/suppliers", supplierRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/stock-movements", stockMovementRoutes);
+
+// ---------- Error Handling ----------
+app.use(notFound);
+app.use(errorHandler);
 
 // ---------- Start Server ----------
 async function startServer() {
   try {
-    // Connect to MongoDB before starting the server
     await connectDB();
 
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
 
-    // Graceful shutdown
     const shutdown = async (signal: string) => {
       console.log(`\n⚠️  Received ${signal}. Shutting down gracefully...`);
       server.close(async () => {
