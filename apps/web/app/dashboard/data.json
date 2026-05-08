@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "header": "Inyange Milk (1L)",
+    "type": "Dairy",
+    "status": "In Stock",
+    "target": "1200",
+    "limit": "45",
+    "reviewer": "Inyange Industries"
+  },
+  {
+    "id": 2,
+    "header": "Skol Lager (Bottle)",
+    "type": "Beverage",
+    "status": "Low Stock",
+    "target": "800",
+    "limit": "12",
+    "reviewer": "Skol Rwanda"
+  },
+  {
+    "id": 3,
+    "header": "Gorilla Coffee (250g)",
+    "type": "Coffee",
+    "status": "In Stock",
+    "target": "4500",
+    "limit": "30",
+    "reviewer": "Gorilla Coffee"
+  },
+  {
+    "id": 4,
+    "header": "Minerve Rice (5kg)",
+    "type": "Grain",
+    "status": "In Stock",
+    "target": "6500",
+    "limit": "20",
+    "reviewer": "Minerve"
+  },
+  {
+    "id": 5,
+    "header": "Sulfo Soap (Cake)",
+    "type": "Hygiene",
+    "status": "Out of Stock",
+    "target": "500",
+    "limit": "0",
+    "reviewer": "Sulfo Rwanda"
+  },
+  {
+    "id": 6,
+    "header": "Azam Flour (2kg)",
+    "type": "Baking",
+    "status": "In Stock",
+    "target": "2200",
+    "limit": "50",
+    "reviewer": "Bakhresa Group"
+  },
+  {
+    "id": 7,
+    "header": "Huye Coffee (Whole Bean)",
+    "type": "Coffee",
+    "status": "Low Stock",
+    "target": "5500",
+    "limit": "8",
+    "reviewer": "Huye Mountain"
+  },
+  {
+    "id": 8,
+    "header": "Urwibutso Juice (Agashya)",
+    "type": "Beverage",
+    "status": "In Stock",
+    "target": "1500",
+    "limit": "60",
+    "reviewer": "Sina Gerard"
+  }
+]
