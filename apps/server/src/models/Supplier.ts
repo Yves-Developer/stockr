@@ -37,4 +37,5 @@ const SupplierSchema = new Schema<ISupplier>(
   }
 );
 
-export default mongoose.model<ISupplier>("Supplier", SupplierSchema);
+export default mongoose.models.Supplier || 
+  mongoose.model<ISupplier>("Supplier", SupplierSchema);

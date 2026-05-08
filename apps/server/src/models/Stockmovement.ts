@@ -50,4 +50,5 @@ const StockMovementSchema = new Schema<IStockMovement>(
   }
 );
 
-export default mongoose.model<IStockMovement>("StockMovement", StockMovementSchema);
+export default mongoose.models.StockMovement || 
+  mongoose.model<IStockMovement>("StockMovement", StockMovementSchema);

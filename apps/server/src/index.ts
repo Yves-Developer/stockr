@@ -8,14 +8,37 @@ import { errorHandler, notFound } from "./middleware/Errorhandler";
 
 // Routes
 import authRoutes from "./routes/AuthRoutes";
-import categoryRoutes from "./routes/Categoryroutes";
+import categoryRoutes from "./routes/CategoryRoutes";
 import supplierRoutes from "./routes/SupplierRoutes";
 import productRoutes from "./routes/Productroutes";
 import stockMovementRoutes from "./routes/StockMovementrouts";
 import dashboardRoutes from "./routes/Dashboardroutes";
+import swaggerUi from "swagger-ui-express";
+import swaggerJsdoc from "swagger-jsdoc";
+
 
 const app: Application = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5003;
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Stockr API",
+      version: "1.0.0",
+      description: "API documentation for Stockr backend",
+    },
+    servers: [
+      {
+        url: "http://localhost:5001",
+      },
+    ],
+  },
+  apis: ["./src/routes/*.ts"], // adjust if needed
+};
+
+const swaggerSpec = swaggerJsdoc(options);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ---------- Middleware ----------
 app.use(cors());
