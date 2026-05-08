@@ -1,52 +1,41 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import User, { IUser } from "../models/User";
+import { auth } from "../lib/auth";
 
 export interface AuthRequest extends Request {
-  user?: IUser;
+  user?: any;
+  session?: any;
 }
 
-// Verify JWT token
+import { fromNodeHeaders } from "better-auth/node";
+
 export const protect = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    let token: string | undefined;
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
 
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
+    if (!session || !session.user) {
+      return res.status(401).json({ success: false, message: "Not authorized" });
     }
 
-    if (!token) {
-      return res.status(401).json({ success: false, message: "Not authorized, no token" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
-    const user = await User.findById(decoded.id);
-
-    if (!user) {
-      return res.status(401).json({ success: false, message: "User not found" });
-    }
-
-    req.user = user;
+    req.user = session.user;
+    req.session = session.session;
     next();
   } catch (error) {
-    res.status(401).json({ success: false, message: "Not authorized, invalid token" });
+    res.status(401).json({ success: false, message: "Not authorized, invalid session" });
   }
 };
 
-// Role-based access control
 export const authorize = (...roles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: `Role '${req.user?.role}' is not authorized to access this route`,
+        message: `Role is not authorized to access this route`,
       });
     }
     next();
