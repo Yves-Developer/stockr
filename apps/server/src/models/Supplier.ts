@@ -18,8 +18,8 @@ const SupplierSchema = new Schema<ISupplier>(
     },
     email: {
       type: String,
-      required: [true, "Supplier email is required"],
       unique: true,
+      sparse: true,
       trim: true,
       lowercase: true,
     },

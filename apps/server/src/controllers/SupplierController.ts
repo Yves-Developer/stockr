@@ -75,13 +75,15 @@ export const createSupplier = async (req: Request, res: Response) => {
   try {
     const { name, email, phone, address } = req.body;
 
-    if (!name || !email) {
-      return res.status(400).json({ success: false, message: "Name and email are required" });
+    if (!name) {
+      return res.status(400).json({ success: false, message: "Supplier name is required" });
     }
 
-    const exists = await Supplier.findOne({ email });
-    if (exists) {
-      return res.status(400).json({ success: false, message: "Supplier with this email already exists" });
+    if (email) {
+      const exists = await Supplier.findOne({ email });
+      if (exists) {
+        return res.status(400).json({ success: false, message: "Supplier with this email already exists" });
+      }
     }
 
     const supplier = await Supplier.create({ name, email, phone, address });

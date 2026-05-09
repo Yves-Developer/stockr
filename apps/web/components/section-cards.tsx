@@ -1,6 +1,8 @@
 "use client"
 
+import * as React from "react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardAction,
@@ -9,78 +11,110 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { TrendingUpIcon, TrendingDownIcon, CheckCircle2Icon, RefreshCwIcon } from "lucide-react"
+import { TrendingUpIcon, TrendingDownIcon, CheckCircle2Icon, RefreshCwIcon, Loader2Icon } from "lucide-react"
+import api from "@/lib/api"
+import { RRASyncDialog } from "@/components/rra-sync-dialog"
 
 export function SectionCards() {
+  const [stats, setStats] = React.useState<any>(null)
+  const [loading, setLoading] = React.useState(true)
+  const [syncDialogOpen, setSyncDialogOpen] = React.useState(false)
+
+  React.useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await api.get("/dashboard")
+        setStats(res.data.data)
+      } catch (error) {
+        console.error("Failed to fetch dashboard stats", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchStats()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i} className="animate-pulse bg-muted/50 h-32" />
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-none lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Total Sales (Month)</CardDescription>
+          <CardDescription>Total Categories</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            RWF 1,250,000
+            {stats?.totalCategories || 0}
           </CardTitle>
           <CardAction>
             <Badge variant="outline" className="border-primary/20 text-primary">
-              <TrendingUpIcon className="size-3 mr-1" />
-              +12.5%
+              <CheckCircle2Icon className="size-3 mr-1" />
+              Active
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month{" "}
-            <TrendingUpIcon className="size-4 text-primary" />
-          </div>
-          <div className="text-muted-foreground">
-            Sales volume increasing
+            System running smoothly
+            <RefreshCwIcon className="size-4 text-primary" />
           </div>
         </CardFooter>
       </Card>
+
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Inventory Items</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            1,234
+            {stats?.totalProducts || 0}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
+            <Badge variant="outline" className={stats?.lowStockProducts?.length > 0 ? "border-destructive text-destructive" : ""}>
               <TrendingDownIcon className="size-3 mr-1" />
-              -5
+              -{stats?.lowStockProducts?.length || 0}
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Low stock alerts: 5 items{" "}
-            <TrendingDownIcon className="size-4 text-destructive" />
+          <div className={`line-clamp-1 flex gap-2 font-medium ${stats?.lowStockProducts?.length > 0 ? "text-destructive" : ""}`}>
+            {stats?.lowStockProducts?.length > 0 
+              ? `Low stock alerts: ${stats.lowStockProducts.length} items` 
+              : "All items well stocked"}
+            <TrendingDownIcon className={`size-4 ${stats?.lowStockProducts?.length > 0 ? "text-destructive" : "text-muted-foreground"}`} />
           </div>
           <div className="text-muted-foreground">
-            Restock required soon
+            {stats?.lowStockProducts?.length > 0 ? "Restock required soon" : "No immediate action needed"}
           </div>
         </CardFooter>
       </Card>
+
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Stock Movements</CardDescription>
+          <CardDescription>Total Stock In</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            856
+            {stats?.totalStockIn || 0}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
               <RefreshCwIcon className="size-3 mr-1" />
-              Today
+              Lifetime
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium text-primary">
-            High activity detected{" "}
+            High activity detected
             <TrendingUpIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">Tracking every transaction</div>
         </CardFooter>
       </Card>
+
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>RRA Sync Status</CardDescription>
@@ -96,12 +130,26 @@ export function SectionCards() {
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Last sync: 2 mins ago{" "}
+            Ready for Sync
             <CheckCircle2Icon className="size-4 text-primary" />
           </div>
           <div className="text-muted-foreground">EBM compliance verified</div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="mt-2 h-7 w-full text-xs" 
+            onClick={() => setSyncDialogOpen(true)}
+          >
+            <RefreshCwIcon className="mr-2 size-3" />
+            Sync Now
+          </Button>
         </CardFooter>
       </Card>
+
+      <RRASyncDialog 
+        open={syncDialogOpen} 
+        onOpenChange={setSyncDialogOpen} 
+      />
     </div>
   )
 }

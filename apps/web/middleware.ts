@@ -1,5 +1,5 @@
 import { betterFetch } from "@better-fetch/fetch";
-import type { Session } from "better-auth/api";
+import type { Session } from "better-auth";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
