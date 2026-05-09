@@ -7,6 +7,7 @@ const db = client.db(); // Uses the database from the connection string
 
 export const auth = betterAuth({
   database: mongodbAdapter(db),
+  baseURL: process.env.BETTER_AUTH_URL || "https://stockr-rho.vercel.app",
   emailAndPassword: {
     enabled: true,
   },
