@@ -37,7 +37,7 @@ export default function LandingPage() {
           <div className="text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
               <span className="size-1.5 rounded-full bg-primary animate-pulse" />
-              EBM Hardware is dead. Long live Stockr.
+              Run Your Business Smarter.
             </div>
             <h1 className="mx-auto max-w-4xl text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
               The smart business engine <br />
