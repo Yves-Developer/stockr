@@ -56,6 +56,7 @@ export function RRASyncDialog({
   const startSync = async () => {
     for (let i = 0; i < steps.length; i++) {
       const currentStep = steps[i]
+      if (!currentStep) continue
       
       // Set current step to loading
       setSteps(prev => prev.map((s, idx) => idx === i ? { ...s, status: "loading" } : s))

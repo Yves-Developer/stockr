@@ -56,7 +56,8 @@ export default function ScannerPage() {
       await html5QrCode.current.start(
         { facingMode: "environment" },
         config,
-        onScanSuccess
+        onScanSuccess,
+        () => {} // Error callback
       )
       setIsScanning(true)
     } catch (err: any) {

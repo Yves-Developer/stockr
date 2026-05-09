@@ -58,7 +58,7 @@ export function StockMovementSheet({ product, trigger, onSuccess }: StockMovemen
   const [receiptOpen, setReceiptOpen] = React.useState(false)
   const [receiptData, setReceiptData] = React.useState<any>(null)
 
-  const form = useForm<MovementFormValues>({
+  const form = useForm({
     resolver: zodResolver(movementSchema),
     defaultValues: {
       type: "IN",

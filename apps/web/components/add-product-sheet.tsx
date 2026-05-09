@@ -41,7 +41,7 @@ export function AddProductSheet({ trigger }: { trigger?: React.ReactNode }) {
   const [categories, setCategories] = React.useState<{ _id: string; name: string }[]>([])
   const [suppliers, setSuppliers] = React.useState<{ _id: string; name: string }[]>([])
 
-  const form = useForm<ProductFormValues>({
+  const form = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "",
