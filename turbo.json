@@ -4,6 +4,17 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "env": [
+        "MONGODB_URI",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "NEXT_PUBLIC_API_URL",
+        "NEXT_PUBLIC_APP_URL",
+        "RRA_TIN",
+        "RRA_BRANCH_ID",
+        "RRA_DEVICE_SERIAL",
+        "RRA_VSDC_URL"
+      ],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"]
     },
