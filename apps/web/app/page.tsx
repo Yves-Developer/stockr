@@ -86,7 +86,7 @@ export default function LandingPage() {
             {[
               {
                 title: "RRA Compliant",
-                desc: "Full EBM replacement with automatic synchronization to RRA servers. Zero stress tax season.",
+                desc: "Full digital EBM with automatic synchronization to RRA servers. Zero stress tax season.",
                 icon: ShieldCheck,
               },
               {
