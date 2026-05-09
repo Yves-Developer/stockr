@@ -3,22 +3,47 @@
 import * as React from "react"
 import { Html5Qrcode } from "html5-qrcode"
 import { toast } from "sonner"
-import { CameraIcon, RotateCwIcon, XIcon, CheckCircle2Icon, AlertCircleIcon, Loader2Icon } from "lucide-react"
+import { 
+  CameraIcon, 
+  RotateCwIcon, 
+  XIcon, 
+  CheckCircle2Icon, 
+  AlertCircleIcon, 
+  Loader2Icon, 
+  ArrowUpCircleIcon, 
+  ArrowDownCircleIcon,
+  SmartphoneIcon,
+  QrCodeIcon,
+  MonitorSmartphoneIcon
+} from "lucide-react"
+import { QRCodeSVG } from "qrcode.react"
 
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { StockMovementSheet } from "@/components/stock-movement-sheet"
 import api from "@/lib/api"
+import { useSidebar } from "@/components/ui/sidebar"
 
 export default function ScannerPage() {
+  const { isMobile } = useSidebar()
   const [scanResult, setScanResult] = React.useState<string | null>(null)
   const [product, setProduct] = React.useState<any>(null)
   const [isScanning, setIsScanning] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const html5QrCode = React.useRef<Html5Qrcode | null>(null)
+  const [currentUrl, setCurrentUrl] = React.useState("")
+
+  React.useEffect(() => {
+    // In production this would be the public URL
+    // For local dev, we use the local IP if possible, or just the current URL
+    setCurrentUrl(window.location.href)
+  }, [])
 
   const startScanner = async () => {
+    if (!isMobile) return
+    if (isScanning || isLoading) return
+
     setIsLoading(true)
     setError(null)
     try {
@@ -45,18 +70,23 @@ export default function ScannerPage() {
 
   const stopScanner = async () => {
     if (html5QrCode.current && html5QrCode.current.isScanning) {
-      await html5QrCode.current.stop()
+      try {
+        await html5QrCode.current.stop()
+      } catch (e) {
+        console.warn("Error stopping scanner:", e)
+      }
     }
     setIsScanning(false)
   }
 
   React.useEffect(() => {
-    // Attempt auto-start
-    startScanner()
+    if (isMobile) {
+      startScanner()
+    }
     return () => {
       stopScanner()
     }
-  }, [])
+  }, [isMobile])
 
   async function onScanSuccess(decodedText: string) {
     setScanResult(decodedText)
@@ -82,17 +112,84 @@ export default function ScannerPage() {
     startScanner()
   }
 
+  // Desktop UI: Show QR Code to move to mobile
+  if (!isMobile) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-var(--header-height))] p-4 bg-background overflow-hidden">
+        <div className="w-full max-w-md space-y-6">
+          <div className="text-center space-y-1">
+            <div className="inline-flex size-12 items-center justify-center rounded-3xl bg-primary/10 mb-1 border border-primary/20">
+              <MonitorSmartphoneIcon className="size-6 text-primary" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight">Connect Phone Scanner</h1>
+            <p className="text-muted-foreground text-xs max-w-[280px] mx-auto">
+              Scan this QR code to use your phone as a wireless barcode scanner.
+            </p>
+          </div>
+
+          <Card className="border-2 border-primary/10 bg-card/50 backdrop-blur-sm overflow-hidden shadow-xl">
+            <CardContent className="flex flex-col items-center justify-center p-6 gap-6">
+              <div className="relative p-4 bg-white rounded-[2rem] shadow-xl border-4 border-primary/5">
+                {currentUrl ? (
+                  <QRCodeSVG 
+                    value={currentUrl} 
+                    size={180}
+                    level="H"
+                    includeMargin={false}
+                  />
+                ) : (
+                  <div className="size-[180px] flex items-center justify-center">
+                    <Loader2Icon className="animate-spin size-6 text-primary" />
+                  </div>
+                )}
+                
+                {/* Branded Center Icon */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="bg-white p-2 rounded-xl shadow-lg border border-primary/20">
+                    <QrCodeIcon className="size-6 text-primary" />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2 w-full">
+                <div className="flex items-center gap-3 p-2.5 rounded-xl bg-primary/5 border border-primary/10">
+                  <div className="size-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold shrink-0">
+                    1
+                  </div>
+                  <p className="text-[11px] font-medium">Open camera on your phone</p>
+                </div>
+                <div className="flex items-center gap-3 p-2.5 rounded-xl bg-primary/5 border border-primary/10">
+                  <div className="size-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold shrink-0">
+                    2
+                  </div>
+                  <p className="text-[11px] font-medium">Scan the code to launch mobile scanner</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-center">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-8" onClick={() => window.history.back()}>
+              Return to Dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Mobile UI: Camera Scanner
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-var(--header-height))] p-4 bg-background">
+    <div className="flex flex-col items-center justify-center h-[calc(100vh-var(--header-height))] p-4 bg-background overflow-hidden">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">Barcode Scanner</h1>
           <p className="text-muted-foreground text-sm">
-            Point your camera at a product barcode to scan.
+            Point your camera at a product barcode.
           </p>
         </div>
 
-        <Card className="relative overflow-hidden border-2 border-primary/20 aspect-square flex items-center justify-center bg-black/5">
+        <Card className="relative overflow-hidden border-2 border-primary/20 aspect-square flex items-center justify-center bg-black/5 rounded-3xl">
           <div id="reader" className={`w-full h-full ${!isScanning && 'hidden'}`}></div>
           
           {!isScanning && !scanResult && (
@@ -112,7 +209,7 @@ export default function ScannerPage() {
                 <>
                   <CameraIcon className="size-12 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">Camera is ready</p>
-                  <Button onClick={startScanner} className="bg-primary text-black">Enable Camera</Button>
+                  <Button onClick={startScanner} className="bg-primary text-black font-semibold rounded-xl px-8 py-6 text-lg">Enable Camera</Button>
                 </>
               )}
             </div>
@@ -129,7 +226,7 @@ export default function ScannerPage() {
               </div>
               
               {product && (
-                <div className="mt-4 p-4 rounded-xl bg-primary/10 border border-primary/20 w-full space-y-4">
+                <div className="mt-4 p-4 rounded-2xl bg-primary/10 border border-primary/20 w-full space-y-4">
                   <div className="text-left">
                     <p className="text-lg font-semibold">{product.name}</p>
                     <p className="text-sm text-muted-foreground">{product.category?.name || "Uncategorized"}</p>
@@ -141,9 +238,9 @@ export default function ScannerPage() {
                       product={product}
                       onSuccess={resetScanner}
                       trigger={
-                        <Button className="bg-green-500 hover:bg-green-600 text-black font-bold h-12">
+                        <Button className="bg-green-500 hover:bg-green-600 text-black font-bold h-12 rounded-xl">
                           <ArrowUpCircleIcon className="mr-2 size-5" />
-                          Stock IN
+                          IN
                         </Button>
                       }
                     />
@@ -151,9 +248,9 @@ export default function ScannerPage() {
                       product={product}
                       onSuccess={resetScanner}
                       trigger={
-                        <Button className="bg-red-500 hover:bg-red-600 text-black font-bold h-12">
+                        <Button className="bg-red-500 hover:bg-red-600 text-black font-bold h-12 rounded-xl">
                           <ArrowDownCircleIcon className="mr-2 size-5" />
-                          Stock OUT
+                          OUT
                         </Button>
                       }
                     />
@@ -163,14 +260,14 @@ export default function ScannerPage() {
 
               <Button onClick={resetScanner} variant="ghost" className="mt-2 w-full text-muted-foreground hover:text-foreground">
                 <RotateCwIcon className="mr-2 size-4" />
-                Scan Different Product
+                Scan Again
               </Button>
             </div>
           )}
           
           {isScanning && (
              <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10">
-                <div className="size-64 border-2 border-primary rounded-3xl opacity-50 animate-pulse flex items-center justify-center">
+                <div className="size-64 border-2 border-primary rounded-[3rem] opacity-50 animate-pulse flex items-center justify-center">
                    <div className="w-full h-0.5 bg-primary/50 absolute shadow-[0_0_15px_var(--primary)]"></div>
                 </div>
              </div>
@@ -178,11 +275,11 @@ export default function ScannerPage() {
         </Card>
 
         <div className="flex justify-center gap-4">
-          <Button variant="outline" size="lg" className="rounded-full size-14 p-0" onClick={startScanner}>
-            <CameraIcon className="size-6" />
+          <Button variant="outline" size="lg" className="rounded-2xl size-16 p-0 border-2" onClick={startScanner}>
+            <CameraIcon className="size-8" />
           </Button>
-          <Button variant="outline" size="lg" className="rounded-full size-14 p-0" onClick={() => window.history.back()}>
-            <XIcon className="size-6" />
+          <Button variant="outline" size="lg" className="rounded-2xl size-16 p-0 border-2" onClick={() => window.history.back()}>
+            <XIcon className="size-8" />
           </Button>
         </div>
       </div>

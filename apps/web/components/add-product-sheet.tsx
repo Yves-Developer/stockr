@@ -19,14 +19,8 @@ import {
 } from "@/components/ui/sheet"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { ComboAdd } from "@/components/combo-add"
 import api from "@/lib/api"
 
 const productSchema = z.object({
@@ -76,16 +70,32 @@ export function AddProductSheet({ trigger }: { trigger?: React.ReactNode }) {
       setSuppliers(supRes.data.data || [])
     } catch (error) {
       console.error("Failed to fetch metadata", error)
-      // Mock data for development if backend fails
-      setCategories([
-        { _id: "1", name: "Dairy" },
-        { _id: "2", name: "Beverage" },
-        { _id: "3", name: "Coffee" },
-      ])
-      setSuppliers([
-        { _id: "1", name: "Inyange Industries" },
-        { _id: "2", name: "Skol Rwanda" },
-      ])
+    }
+  }
+
+  const handleCreateCategory = async (name: string) => {
+    try {
+      const res = await api.post("/categories", { name })
+      const newCat = res.data.data
+      setCategories(prev => [...prev, newCat])
+      toast.success(`Category "${name}" created`)
+      return newCat
+    } catch (error) {
+      toast.error("Failed to create category")
+      return null
+    }
+  }
+
+  const handleCreateSupplier = async (name: string) => {
+    try {
+      const res = await api.post("/suppliers", { name })
+      const newSup = res.data.data
+      setSuppliers(prev => [...prev, newSup])
+      toast.success(`Supplier "${name}" created`)
+      return newSup
+    } catch (error) {
+      toast.error("Failed to create supplier")
+      return null
     }
   }
 
@@ -181,44 +191,33 @@ export function AddProductSheet({ trigger }: { trigger?: React.ReactNode }) {
                 )}
               </div>
             </div>
-            <div className="grid gap-2">
-              <Label>Category</Label>
-              <Select
-                onValueChange={(value) => form.setValue("categoryId", value)}
-                defaultValue={form.getValues("categoryId")}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat._id} value={cat._id}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form.formState.errors.categoryId && (
-                <p className="text-xs text-destructive">{form.formState.errors.categoryId.message}</p>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <Label>Supplier</Label>
-              <Select
-                onValueChange={(value) => form.setValue("supplierId", value)}
-                defaultValue={form.getValues("supplierId")}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Supplier" />
-                </SelectTrigger>
-                <SelectContent>
-                  {suppliers.map((sup) => (
-                    <SelectItem key={sup._id} value={sup._id}>
-                      {sup.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>Category</Label>
+                <ComboAdd 
+                  items={categories}
+                  placeholder="Select Category"
+                  emptyMessage="No category found."
+                  value={form.watch("categoryId")}
+                  onSelect={(val) => form.setValue("categoryId", val)}
+                  onCreate={handleCreateCategory}
+                />
+                {form.formState.errors.categoryId && (
+                  <p className="text-xs text-destructive">{form.formState.errors.categoryId.message}</p>
+                )}
+              </div>
+              <div className="grid gap-2">
+                <Label>Supplier</Label>
+                <ComboAdd 
+                  items={suppliers}
+                  placeholder="Select Supplier"
+                  emptyMessage="No supplier found."
+                  value={form.watch("supplierId")}
+                  onSelect={(val) => form.setValue("supplierId", val)}
+                  onCreate={handleCreateSupplier}
+                />
+              </div>
             </div>
           </div>
           <SheetFooter className="p-6 border-t mt-auto">
