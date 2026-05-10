@@ -44,20 +44,20 @@ export async function POST(req: Request) {
     // Handle both { session, user } and direct session object structures
     const sessionData = (session as any).session || session;
     const userData = (session as any).user || null;
-    const token = sessionData?.token || (sessionData as any).id;
+    const finalSessionToken = sessionData?.token || (sessionData as any).id;
 
-    if (!token) {
+    if (!finalSessionToken) {
         console.error("[MagicLogin] No token found in session object:", JSON.stringify(session));
         return NextResponse.json({ success: false, message: "Session token missing" }, { status: 500 });
     }
 
-    console.log("[MagicLogin] Session created successfully. Token:", `...${token.slice(-6)}`);
+    console.log("[MagicLogin] Session created successfully. Token:", `...${finalSessionToken.slice(-6)}`);
 
     // 3. Prepare the response
     const response = NextResponse.json({ 
         success: true, 
         message: "Logged in successfully",
-        sessionToken: token,
+        sessionToken: finalSessionToken,
         user: userData
     });
 
@@ -71,12 +71,12 @@ export async function POST(req: Request) {
         maxAge: 60 * 60 * 24 * 7, // 7 days
     };
 
-    response.cookies.set("better-auth.session_token", token, cookieOptions);
+    response.cookies.set("better-auth.session_token", finalSessionToken, cookieOptions);
     if (process.env.NODE_ENV === "production") {
-        response.cookies.set("__Secure-better-auth.session_token", token, cookieOptions);
+        response.cookies.set("__Secure-better-auth.session_token", finalSessionToken, cookieOptions);
     }
 
-    console.log(`[MagicLogin] Cookies set for token ...${token.slice(-6)}`);
+    console.log(`[MagicLogin] Cookies set for token ...${finalSessionToken.slice(-6)}`);
 
     return response;
   } catch (error: any) {
