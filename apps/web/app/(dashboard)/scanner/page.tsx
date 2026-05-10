@@ -64,6 +64,7 @@ export default function ScannerPage() {
         toast.success("Logged in automatically!")
         await authClient.getSession()
         window.history.replaceState({}, document.title, window.location.pathname)
+        window.location.reload()
       }
     } catch (err) {
       console.error("Magic login failed:", err)
