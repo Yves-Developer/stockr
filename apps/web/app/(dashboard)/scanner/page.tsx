@@ -14,12 +14,14 @@ import {
   ArrowDownCircleIcon,
   SmartphoneIcon,
   QrCodeIcon,
-  MonitorSmartphoneIcon
+  MonitorSmartphoneIcon,
+  PlusIcon
 } from "lucide-react"
 import { QRCodeSVG } from "qrcode.react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { AddProductSheet } from "@/components/add-product-sheet"
 import { StockMovementSheet } from "@/components/stock-movement-sheet"
 import api from "@/lib/api"
 import { useSidebar } from "@/components/ui/sidebar"
