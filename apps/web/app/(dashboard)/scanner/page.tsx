@@ -44,6 +44,13 @@ export default function ScannerPage() {
     if (!isMobile) return
     if (isScanning || isLoading) return
 
+    setIsLoading(true)
+    setError(null)
+    try {
+      if (!html5QrCode.current) {
+        html5QrCode.current = new Html5Qrcode("reader")
+      }
+
       setIsScanning(true)
       // Give the DOM a moment to render the #reader div before starting
       await new Promise(r => setTimeout(r, 100))
