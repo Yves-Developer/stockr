@@ -61,6 +61,11 @@ export default function ScannerPage() {
     try {
       const res = await axios.post("/api/magic-login", { token })
       if (res.data.success) {
+        // Save the token to localStorage for the Bearer interceptor in api.ts
+        if (res.data.sessionToken) {
+          localStorage.setItem("better-auth.session_token", res.data.sessionToken);
+        }
+        
         toast.success("Logged in automatically!")
         await authClient.getSession()
         window.history.replaceState({}, document.title, window.location.pathname)

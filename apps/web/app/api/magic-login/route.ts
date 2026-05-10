@@ -24,8 +24,6 @@ export async function POST(req: Request) {
     const userId = verifyRes.data.userId;
 
     // 2. Create a session on the Vercel side
-    // We use the internal API but cast to any to avoid build-time type errors
-    // while ensuring the runtime logic works.
     const session = await (auth.api as any).createSession({
         body: {
             userId: userId,
@@ -36,18 +34,29 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, message: "Failed to create session" }, { status: 500 });
     }
 
-    // 3. To set the cookie, we use the better-auth helper to get headers for the session
-    const headers = new Headers();
-    // better-auth session cookies are usually managed by the client-side library 
-    // but since we want the browser to pick it up immediately, we should ideally set it.
-    
-    // Most reliable way: return the session data, and the frontend will use authClient.setSession
-    return NextResponse.json({ 
+    // 3. Prepare the response
+    const response = NextResponse.json({ 
         success: true, 
-        session: session.session,
+        message: "Logged in successfully",
+        sessionToken: session.session.token, // Return this so client can put it in localStorage
         user: session.user
     });
 
+    // 4. Manually set the cookie so the browser recognizes the session for Vercel
+    // We use the same settings as better-auth (secure, httpOnly, etc.)
+    const cookieName = process.env.NODE_ENV === "production" 
+        ? "__Secure-better-auth.session_token" 
+        : "better-auth.session_token";
+
+    response.cookies.set(cookieName, session.session.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    return response;
   } catch (error: any) {
     console.error("Magic login error:", error);
     return NextResponse.json({ 
