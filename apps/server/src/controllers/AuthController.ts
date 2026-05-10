@@ -17,14 +17,23 @@ export const generateMagicToken = async (req: any, res: Response) => {
 
     console.log(`[Auth] Attempting to save token ...${token.slice(-6)} for user: ${req.user.email}`);
     
-    // Search by email to be 100% sure we match the Better Auth user
-    const updatedUser = await User.findOneAndUpdate({ email: req.user.email }, {
-      magicToken: token,
-      magicTokenExpires: expires,
-    }, { new: true });
+    // Search with Case-Insensitivity
+    const updatedUser = await User.findOneAndUpdate(
+      { email: { $regex: new RegExp(`^${req.user.email}$`, "i") } }, 
+      {
+        magicToken: token,
+        magicTokenExpires: expires,
+      }, 
+      { new: true }
+    );
 
     if (!updatedUser) {
       console.error(`[Auth] FAILED to find user with email ${req.user.email}`);
+      
+      // DEBUG: List all emails in the collection to see what's actually there
+      const allUsers = await User.find({}).limit(5).select("email").lean();
+      console.log("[Auth] Current users in DB:", allUsers.map(u => u.email).join(", "));
+      
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
