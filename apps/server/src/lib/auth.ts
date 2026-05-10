@@ -4,7 +4,8 @@ import { MongoClient } from "mongodb";
 import { bearer } from "better-auth/plugins";
 
 const client = new MongoClient(process.env.MONGO_URI!);
-const db = client.db("inventory_db");
+const dbName = process.env.MONGO_DB_NAME || "inventory_db";
+const db = client.db(dbName);
 
 export const auth = betterAuth({
   database: mongodbAdapter(db),
