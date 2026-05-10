@@ -15,15 +15,16 @@ export const generateMagicToken = async (req: any, res: Response) => {
       return res.status(401).json({ success: false, message: "Not authenticated" });
     }
 
-    console.log(`[Auth] Attempting to save token ...${token.slice(-6)} for user ID: ${req.user.id}`);
+    console.log(`[Auth] Attempting to save token ...${token.slice(-6)} for user: ${req.user.email}`);
     
-    const updatedUser = await User.findByIdAndUpdate(req.user.id, {
+    // Search by email to be 100% sure we match the Better Auth user
+    const updatedUser = await User.findOneAndUpdate({ email: req.user.email }, {
       magicToken: token,
       magicTokenExpires: expires,
     }, { new: true });
 
     if (!updatedUser) {
-      console.error(`[Auth] FAILED to find/update user ${req.user.id} with token`);
+      console.error(`[Auth] FAILED to find user with email ${req.user.email}`);
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
