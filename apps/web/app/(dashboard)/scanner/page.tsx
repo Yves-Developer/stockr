@@ -31,6 +31,7 @@ export default function ScannerPage() {
   const [isScanning, setIsScanning] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = React.useState(false)
   const html5QrCode = React.useRef<Html5Qrcode | null>(null)
   const [currentUrl, setCurrentUrl] = React.useState("")
 
@@ -115,9 +116,22 @@ export default function ScannerPage() {
     }
   }
 
+  const handleActionSuccess = () => {
+    setIsSuccess(true)
+    setProduct(null)
+    setScanResult(null)
+    
+    // Auto reset scanner after 2 seconds
+    setTimeout(() => {
+      setIsSuccess(false)
+      startScanner()
+    }, 2000)
+  }
+
   const resetScanner = () => {
     setScanResult(null)
     setProduct(null)
+    setIsSuccess(false)
     startScanner()
   }
 
@@ -236,53 +250,97 @@ export default function ScannerPage() {
             </div>
           )}
 
-          {scanResult && (
+          {scanResult && !isSuccess && (
             <div className="flex flex-col items-center gap-4 p-8 text-center animate-in fade-in zoom-in duration-300 z-10 bg-background/95 absolute inset-0">
-              <div className="size-16 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                <CheckCircle2Icon className="size-10" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Scanned Code</p>
-                <p className="text-2xl font-mono font-bold text-primary">{scanResult}</p>
-              </div>
-              
-              {product && (
-                <div className="mt-4 p-4 rounded-2xl bg-primary/10 border border-primary/20 w-full space-y-4">
-                  <div className="text-left">
-                    <p className="text-lg font-semibold">{product.name}</p>
-                    <p className="text-sm text-muted-foreground">{product.category?.name || "Uncategorized"}</p>
-                    <p className="text-xl font-bold mt-2">RWF {product.price.toLocaleString()}</p>
+              {product ? (
+                <>
+                  <div className="size-16 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                    <CheckCircle2Icon className="size-10" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Product Found</p>
+                    <p className="text-2xl font-bold text-primary">{product.name}</p>
+                    <p className="text-xs font-mono text-muted-foreground mt-1">SKU: {scanResult}</p>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-3 pt-2">
-                    <StockMovementSheet 
-                      product={product}
-                      onSuccess={resetScanner}
-                      trigger={
-                        <Button className="bg-green-500 hover:bg-green-600 text-black font-bold h-12 rounded-xl">
-                          <ArrowUpCircleIcon className="mr-2 size-5" />
-                          IN
-                        </Button>
-                      }
-                    />
-                    <StockMovementSheet 
-                      product={product}
-                      onSuccess={resetScanner}
-                      trigger={
-                        <Button className="bg-red-500 hover:bg-red-600 text-black font-bold h-12 rounded-xl">
-                          <ArrowDownCircleIcon className="mr-2 size-5" />
-                          OUT
-                        </Button>
-                      }
-                    />
+                  <div className="mt-4 p-4 rounded-2xl bg-primary/10 border border-primary/20 w-full space-y-4">
+                    <div className="text-left">
+                      <p className="text-sm text-muted-foreground">{product.category?.name || "Uncategorized"}</p>
+                      <p className="text-xl font-bold mt-1">RWF {product.price.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Stock: {product.quantity} units</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 pt-2">
+                      <StockMovementSheet 
+                        product={product}
+                        onSuccess={handleActionSuccess}
+                        trigger={
+                          <Button className="bg-green-500 hover:bg-green-600 text-black font-bold h-12 rounded-xl w-full">
+                            <ArrowUpCircleIcon className="mr-2 size-5" />
+                            STOCK IN
+                          </Button>
+                        }
+                      />
+                      <StockMovementSheet 
+                        product={product}
+                        onSuccess={handleActionSuccess}
+                        trigger={
+                          <Button className="bg-red-500 hover:bg-red-600 text-black font-bold h-12 rounded-xl w-full">
+                            <ArrowDownCircleIcon className="mr-2 size-5" />
+                            SELL (OUT)
+                          </Button>
+                        }
+                      />
+                    </div>
                   </div>
-                </div>
+                </>
+              ) : (
+                <>
+                  <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center text-destructive">
+                    <AlertCircleIcon className="size-10" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">New Product Detected</p>
+                    <p className="text-2xl font-bold text-foreground">Not in Inventory</p>
+                    <p className="text-xs font-mono text-muted-foreground mt-1">SKU: {scanResult}</p>
+                  </div>
+
+                  <div className="mt-4 w-full space-y-4">
+                    <AddProductSheet 
+                      initialValues={{ sku: scanResult }}
+                      onSuccess={handleActionSuccess} // Need to make sure AddProductSheet supports this or similar
+                      trigger={
+                        <Button className="bg-primary text-black font-bold h-14 rounded-xl w-full text-lg">
+                          <PlusIcon className="mr-2 size-6" />
+                          ADD TO STOCK
+                        </Button>
+                      }
+                    />
+                    
+                    <Button onClick={resetScanner} variant="ghost" className="w-full text-muted-foreground">
+                      <RotateCwIcon className="mr-2 size-4" />
+                      Try Another Scan
+                    </Button>
+                  </div>
+                </>
               )}
 
-              <Button onClick={resetScanner} variant="ghost" className="mt-2 w-full text-muted-foreground hover:text-foreground">
-                <RotateCwIcon className="mr-2 size-4" />
-                Scan Again
-              </Button>
+              {!product && (
+                <Button onClick={resetScanner} variant="ghost" className="mt-auto w-full text-muted-foreground hover:text-foreground">
+                  <RotateCwIcon className="mr-2 size-4" />
+                  Scan Again
+                </Button>
+              )}
+            </div>
+          )}
+
+          {isSuccess && (
+            <div className="flex flex-col items-center justify-center gap-4 p-8 text-center animate-in fade-in zoom-in duration-500 z-50 bg-primary absolute inset-0">
+               <div className="size-24 rounded-full bg-white/20 flex items-center justify-center text-white animate-bounce">
+                  <CheckCircle2Icon className="size-16" />
+               </div>
+               <h2 className="text-3xl font-black text-white italic tracking-tighter">SUCCESS!</h2>
+               <p className="text-white/80 font-medium">Recording saved to inventory...</p>
             </div>
           )}
           
