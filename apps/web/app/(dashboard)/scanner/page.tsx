@@ -215,6 +215,18 @@ export default function ScannerPage() {
                             </div>
                         )}
                     </div>
+                    
+                    {!magicToken && (
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="mb-4 text-xs"
+                            onClick={fetchMagicToken}
+                        >
+                            <RotateCwIcon className="mr-2 size-3" />
+                            Retry Loading Code
+                        </Button>
+                    )}
                     <div className="space-y-3 w-full">
                         <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
                             <div className="size-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold">1</div>
