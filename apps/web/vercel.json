@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/backend-health",
+      "destination": "https://stockr-server.onrender.com/health"
+    },
+    {
+      "source": "/api/debug-env",
+      "destination": "https://echo-api.vercel.app/api/echo?from=vercel-json"
+    },
+    {
+      "source": "/api/backend/:path*",
+      "destination": "https://stockr-server.onrender.com/api/:path*"
+    }
+  ]
+}
