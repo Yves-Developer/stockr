@@ -11,6 +11,10 @@ const nextConfig = {
 
     return [
       {
+        source: "/api/debug-env",
+        destination: `https://echo-api.vercel.app/api/echo?hasBackendUrl=${!!process.env.BACKEND_URL}&nodeEnv=${process.env.NODE_ENV}`,
+      },
+      {
         source: "/api/backend-health",
         destination: `${backendUrl}/health`,
       },
