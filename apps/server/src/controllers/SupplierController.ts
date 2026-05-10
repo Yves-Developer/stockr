@@ -86,7 +86,12 @@ export const createSupplier = async (req: Request, res: Response) => {
       }
     }
 
-    const supplier = await Supplier.create({ name, email, phone, address });
+    const supplier = await Supplier.create({ 
+      name, 
+      email: email || undefined, 
+      phone, 
+      address 
+    });
     res.status(201).json({ success: true, data: supplier });
   } catch (error: any) {
     console.error("❌ Supplier Creation Error:", error);
