@@ -15,7 +15,7 @@ export const generateMagicToken = async (req: any, res: Response) => {
       return res.status(401).json({ success: false, message: "Not authenticated" });
     }
 
-    console.log(`[Auth] Generating magic token for user: ${req.user.id}`);
+    console.log(`[Auth] Generating magic token ...${token.slice(-6)} for user: ${req.user.id}`);
     await User.findByIdAndUpdate(req.user.id, {
       magicToken: token,
       magicTokenExpires: expires,
@@ -70,27 +70,33 @@ export const magicLogin = async (req: Request, res: Response) => {
 export const verifyMagicToken = async (req: Request, res: Response) => {
   try {
     const { token } = req.body;
-    console.log(`[Auth] Verifying magic token: ${token?.substring(0, 8)}...`);
+    console.log(`[Auth] Verifying magic token: ...${token?.slice(-6)}`);
 
     if (!token) {
       return res.status(400).json({ success: false, message: "Token is required" });
     }
 
-    const user = await User.findOne({
-      magicToken: token,
-      magicTokenExpires: { $gt: new Date() },
-    });
+    // Use lean() and explicit projection to bypass any schema hidden field issues
+    const user = await User.findOne({ magicToken: token })
+      .select("_id email magicToken magicTokenExpires")
+      .lean();
 
     if (!user) {
-      console.warn("[Auth] Token verification failed: Not found or expired");
+      console.warn(`[Auth] Token ...${token?.slice(-6)} not found in database`);
       return res.status(401).json({ success: false, message: "Invalid or expired token" });
     }
 
-    console.log(`[Auth] Token verified for user: ${user.id} (${user.email})`);
+    const now = new Date();
+    if (!user.magicTokenExpires || user.magicTokenExpires < now) {
+      console.warn(`[Auth] Token ...${token?.slice(-6)} has expired at ${user.magicTokenExpires}`);
+      return res.status(401).json({ success: false, message: "Token expired" });
+    }
+
+    console.log(`[Auth] Token verified for user: ${user._id} (${user.email})`);
     
     res.status(200).json({ 
         success: true, 
-        userId: user.id.toString(),
+        userId: user._id.toString(),
         message: "Token verified" 
     });
   } catch (error) {
