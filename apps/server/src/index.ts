@@ -48,6 +48,7 @@ app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+app.get("/api/magic/ping", (_req, res) => res.json({ message: "pong" }));
 app.use("/api/magic", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/categories", categoryRoutes);
