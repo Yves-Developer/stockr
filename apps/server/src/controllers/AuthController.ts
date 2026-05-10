@@ -28,11 +28,15 @@ export const generateMagicToken = async (req: any, res: Response) => {
     );
 
     if (!updatedUser) {
+      const dbName = mongoose.connection.db?.databaseName;
+      const collectionName = User.collection.name;
+      
       console.error(`[Auth] FAILED to find user with email ${req.user.email}`);
+      console.log(`[Auth] DB Name: ${dbName} | Collection: ${collectionName}`);
       
       // DEBUG: List all emails in the collection to see what's actually there
-      const allUsers = await User.find({}).limit(5).select("email").lean();
-      console.log("[Auth] Current users in DB:", allUsers.map(u => u.email).join(", "));
+      const allUsers = await User.find({}).limit(10).select("email").lean();
+      console.log(`[Auth] Users found in ${collectionName}:`, allUsers.length > 0 ? allUsers.map(u => u.email).join(", ") : "EMPTY");
       
       return res.status(404).json({ success: false, message: "User not found" });
     }

@@ -23,6 +23,7 @@ export async function connectDB(): Promise<void> {
 
     isConnected = db.connections[0].readyState === 1;
     console.log(`✅ MongoDB connected: ${db.connection.host}`);
+    console.log(`✅ Database Name: ${db.connection.db?.databaseName}`);
 
     mongoose.connection.on("error", (err) => {
       console.error("❌ MongoDB connection error:", err);
