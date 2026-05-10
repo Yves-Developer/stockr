@@ -19,10 +19,16 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
-    // Better Auth stores the session token in local storage by default
-    const token = localStorage.getItem("better-auth.session_token");
+    // Better Auth stores the session token in local storage or cookies.
+    // We check both common keys just in case.
+    const token = localStorage.getItem("better-auth.session_token") || 
+                  localStorage.getItem("better-auth.session-token");
+    
     if (token) {
+      console.log(`[API] Adding Authorization header (Token: ...${token.slice(-6)})`);
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.warn("[API] No session token found in localStorage for request:", config.url);
     }
   }
   return config;

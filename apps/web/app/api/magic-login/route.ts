@@ -36,34 +36,47 @@ export async function POST(req: Request) {
         }
     });
 
-    if (!session || !session.session) {
-        console.error("[MagicLogin] Failed to create session in Better Auth");
+    if (!session) {
+        console.error("[MagicLogin] Failed to create session in Better Auth (session is null)");
         return NextResponse.json({ success: false, message: "Failed to create session" }, { status: 500 });
     }
 
-    console.log("[MagicLogin] Session created successfully:", session.session.id);
+    // Handle both { session, user } and direct session object structures
+    const sessionData = (session as any).session || session;
+    const userData = (session as any).user || null;
+    const token = sessionData?.token || (sessionData as any).id;
+
+    if (!token) {
+        console.error("[MagicLogin] No token found in session object:", JSON.stringify(session));
+        return NextResponse.json({ success: false, message: "Session token missing" }, { status: 500 });
+    }
+
+    console.log("[MagicLogin] Session created successfully. Token:", `...${token.slice(-6)}`);
 
     // 3. Prepare the response
     const response = NextResponse.json({ 
         success: true, 
         message: "Logged in successfully",
-        sessionToken: session.session.token,
-        user: session.user
+        sessionToken: token,
+        user: userData
     });
 
     // 4. Manually set the cookie
-    const cookieName = process.env.NODE_ENV === "production" 
-        ? "__Secure-better-auth.session_token" 
-        : "better-auth.session_token";
-
-    console.log(`[MagicLogin] Setting cookie: ${cookieName}`);
-    response.cookies.set(cookieName, session.session.token, {
+    // We set both the standard and the secure prefixed version to ensure compatibility
+    const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "lax" as const,
         path: "/",
         maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
+    };
+
+    response.cookies.set("better-auth.session_token", token, cookieOptions);
+    if (process.env.NODE_ENV === "production") {
+        response.cookies.set("__Secure-better-auth.session_token", token, cookieOptions);
+    }
+
+    console.log(`[MagicLogin] Cookies set for token ...${token.slice(-6)}`);
 
     return response;
   } catch (error: any) {
