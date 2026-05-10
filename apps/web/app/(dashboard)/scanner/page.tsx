@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Html5Qrcode } from "html5-qrcode"
 import { toast } from "sonner"
+import axios from "axios"
 import { 
   CameraIcon, 
   RotateCwIcon, 
@@ -58,10 +59,12 @@ export default function ScannerPage() {
   const handleMagicLogin = async (token: string) => {
     setIsLoggingIn(true)
     try {
-      const res = await api.post("/auth/magic-login", { token })
+      // Use local Next.js API route instead of Render backend
+      // so it can set the session cookie on the Vercel domain
+      const res = await axios.post("/api/magic-login", { token })
       if (res.data.success) {
         toast.success("Logged in automatically!")
-        // The backend sets the session, but we might need to refresh authClient state
+        // Refresh authClient state
         await authClient.getSession()
         // Remove token from URL
         window.history.replaceState({}, document.title, window.location.pathname)

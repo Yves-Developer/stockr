@@ -67,3 +67,23 @@ export const magicLogin = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: "Magic login failed" });
   }
 };
+
+export const verifyMagicToken = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ success: false, message: "Token is required" });
+
+    const user = await User.findOne({
+      magicToken: token,
+      magicTokenExpires: { $gt: new Date() },
+    }).select("+magicToken +magicTokenExpires");
+
+    if (!user) return res.status(401).json({ success: false, message: "Invalid or expired token" });
+
+    await User.findByIdAndUpdate(user.id, { magicToken: null, magicTokenExpires: null });
+
+    res.status(200).json({ success: true, userId: user.id.toString() });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Verification failed" });
+  }
+};
