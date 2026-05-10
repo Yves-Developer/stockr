@@ -129,6 +129,22 @@ export function ComboAdd({
                 </CommandItem>
               ))}
             </CommandGroup>
+            {search && !items.some(i => i.name.toLowerCase() === search.toLowerCase()) && (
+              <CommandGroup heading="Actions">
+                <CommandItem
+                  onSelect={handleCreate}
+                  value={search}
+                  className="text-primary font-medium"
+                >
+                  {isCreating ? (
+                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <PlusIcon className="mr-2 h-4 w-4" />
+                  )}
+                  Create "{search}"
+                </CommandItem>
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>
