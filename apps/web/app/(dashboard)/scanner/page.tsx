@@ -57,22 +57,26 @@ export default function ScannerPage() {
   }, [isMobile, !!session])
 
   const handleMagicLogin = async (token: string) => {
+    console.log("[MobileAuth] Starting magic login with token:", token.substring(0, 8));
     setIsLoggingIn(true)
     try {
       const res = await axios.post("/api/magic-login", { token })
+      console.log("[MobileAuth] Magic login response:", res.data);
       if (res.data.success) {
-        // Save the token to localStorage for the Bearer interceptor in api.ts
         if (res.data.sessionToken) {
+          console.log("[MobileAuth] Saving session token to localStorage");
           localStorage.setItem("better-auth.session_token", res.data.sessionToken);
         }
         
         toast.success("Logged in automatically!")
+        console.log("[MobileAuth] Refreshing session...");
         await authClient.getSession()
         window.history.replaceState({}, document.title, window.location.pathname)
+        console.log("[MobileAuth] Login complete, reloading page...");
         window.location.reload()
       }
-    } catch (err) {
-      console.error("Magic login failed:", err)
+    } catch (err: any) {
+      console.error("[MobileAuth] Magic login failed:", err.response?.data || err.message)
       toast.error("Auto-login failed. Please log in manually.")
     } finally {
       setIsLoggingIn(false)

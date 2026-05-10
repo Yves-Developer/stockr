@@ -78,15 +78,20 @@ export function AddProductDialog({
   }, [open])
 
   async function fetchMetadata() {
+    console.log("[AddProduct] Fetching categories and suppliers...");
     try {
       const [catRes, supRes] = await Promise.all([
         api.get("/categories"),
         api.get("/suppliers"),
       ])
+      console.log("[AddProduct] Categories received:", catRes.data?.data?.length || 0);
+      console.log("[AddProduct] Suppliers received:", supRes.data?.data?.length || 0);
+      
       setCategories(catRes.data.data || [])
       setSuppliers(supRes.data.data || [])
-    } catch (error) {
-      console.error("Failed to fetch metadata", error)
+    } catch (error: any) {
+      console.error("[AddProduct] Failed to fetch metadata:", error.response?.status, error.message);
+      toast.error("Failed to load categories/suppliers. Please check connection.")
     }
   }
 
