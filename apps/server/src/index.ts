@@ -13,6 +13,7 @@ import productRoutes from "./routes/ProductRoutes";
 import stockMovementRoutes from "./routes/StockMovementRoutes";
 import dashboardRoutes from "./routes/DashboardRoutes";
 import rraRoutes from "./routes/RRARoutes";
+import authRoutes from "./routes/AuthRoutes";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -46,6 +47,7 @@ app.use("/api/suppliers", supplierRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/stock-movements", stockMovementRoutes);
 app.use("/api/rra", rraRoutes);
+app.use("/api/auth", authRoutes);
 
 // ---------- Error Handling ----------
 app.use(notFound);

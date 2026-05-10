@@ -38,6 +38,8 @@ const UserSchema = new Schema<IUser>(
       enum: ["admin", "manager", "staff"],
       default: "staff",
     },
+    magicToken: { type: String, select: false },
+    magicTokenExpires: { type: Date, select: false },
   },
   { timestamps: true }
 );

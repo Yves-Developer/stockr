@@ -36,15 +36,58 @@ export default function ScannerPage() {
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [isSuccess, setIsSuccess] = React.useState(false)
+  const [isLoggingIn, setIsLoggingIn] = React.useState(false)
   const html5QrCode = React.useRef<Html5Qrcode | null>(null)
   const [currentUrl, setCurrentUrl] = React.useState("")
 
   React.useEffect(() => {
-    setCurrentUrl(window.location.href)
-  }, [])
+    const searchParams = new URLSearchParams(window.location.search)
+    const token = searchParams.get("token")
+
+    if (token && !session) {
+      handleMagicLogin(token)
+    } else if (!isMobile) {
+      fetchMagicToken()
+    }
+    
+    // Set base URL without token for QR code
+    const baseUrl = window.location.origin + window.location.pathname
+    setCurrentUrl(baseUrl)
+  }, [isMobile, session])
+
+  const handleMagicLogin = async (token: string) => {
+    setIsLoggingIn(true)
+    try {
+      const res = await api.post("/auth/magic-login", { token })
+      if (res.data.success) {
+        toast.success("Logged in automatically!")
+        // The backend sets the session, but we might need to refresh authClient state
+        await authClient.getSession()
+        // Remove token from URL
+        window.history.replaceState({}, document.title, window.location.pathname)
+      }
+    } catch (err) {
+      console.error("Magic login failed:", err)
+      toast.error("Auto-login failed. Please log in manually.")
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }
+
+  const fetchMagicToken = async () => {
+    try {
+      const res = await api.get("/auth/magic-token")
+      if (res.data.success) {
+        const baseUrl = window.location.origin + window.location.pathname
+        setCurrentUrl(`${baseUrl}?token=${res.data.token}`)
+      }
+    } catch (err) {
+      console.error("Failed to fetch magic token:", err)
+    }
+  }
 
   const startScanner = async () => {
-    if (!isMobile) return
+    if (!isMobile || isLoggingIn) return
     if (isScanning || isLoading) return
 
     setIsLoading(true)
@@ -252,7 +295,12 @@ export default function ScannerPage() {
             
             {!isScanning && !scanResult && (
               <div className="flex flex-col items-center gap-4 p-8 text-center">
-                {error ? (
+                {isLoggingIn ? (
+                  <>
+                    <Loader2Icon className="size-12 text-primary animate-spin" />
+                    <p className="text-sm text-white font-bold uppercase tracking-widest">Auto-logging in...</p>
+                  </>
+                ) : error ? (
                   <>
                     <AlertCircleIcon className="size-12 text-destructive" />
                     <p className="text-sm text-destructive font-medium">{error}</p>
