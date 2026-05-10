@@ -8,7 +8,7 @@ import crypto from "crypto";
 export const generateMagicToken = async (req: any, res: Response) => {
   try {
     const token = crypto.randomBytes(32).toString("hex");
-    const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiration
+    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiration
 
     if (!req.user || !req.user.id) {
       console.warn("[Auth] Magic token requested without session");
@@ -42,7 +42,7 @@ export const magicLogin = async (req: Request, res: Response) => {
     const user = await User.findOne({
       magicToken: token,
       magicTokenExpires: { $gt: new Date() },
-    }).select("+magicToken +magicTokenExpires");
+    });
 
     if (!user) {
       console.warn("[Auth] Invalid or expired magic token");
@@ -51,11 +51,6 @@ export const magicLogin = async (req: Request, res: Response) => {
 
     const session = await (auth.api as any).createSession({
         userId: user.id
-    });
-
-    await User.findByIdAndUpdate(user.id, {
-      magicToken: null,
-      magicTokenExpires: null,
     });
 
     console.log(`[Auth] Successful magic login for user: ${user.id}`);
@@ -84,7 +79,7 @@ export const verifyMagicToken = async (req: Request, res: Response) => {
     const user = await User.findOne({
       magicToken: token,
       magicTokenExpires: { $gt: new Date() },
-    }).select("+magicToken +magicTokenExpires");
+    });
 
     if (!user) {
       console.warn("[Auth] Token verification failed: Not found or expired");
@@ -93,12 +88,6 @@ export const verifyMagicToken = async (req: Request, res: Response) => {
 
     console.log(`[Auth] Token verified for user: ${user.id} (${user.email})`);
     
-    // Clear the token after verification
-    await User.findByIdAndUpdate(user.id, {
-      magicToken: null,
-      magicTokenExpires: null,
-    });
-
     res.status(200).json({ 
         success: true, 
         userId: user.id.toString(),
