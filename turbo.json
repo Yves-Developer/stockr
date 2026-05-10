@@ -13,7 +13,9 @@
         "RRA_TIN",
         "RRA_BRANCH_ID",
         "RRA_DEVICE_SERIAL",
-        "RRA_VSDC_URL"
+        "RRA_VSDC_URL",
+        "BACKEND_URL",
+        "FRONTEND_URL"
       ],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"]
