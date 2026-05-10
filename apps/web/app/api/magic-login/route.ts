@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth } from "../../../lib/auth";
 import { NextResponse } from "next/server";
 import axios from "axios";
 
@@ -30,16 +30,25 @@ export async function POST(req: Request) {
 
     // 2. Create a session on the Vercel side
     console.log("[MagicLogin] Creating session in Better Auth...");
-    const session = await (auth.api as any).createSession({
+    
+    const authApi = auth.api as any;
+    const createSessionFn = authApi?.createSession;
+
+    if (typeof createSessionFn !== "function") {
+        const methods = Object.keys(authApi || {}).join(", ");
+        console.error(`[MagicLogin] createSession is not a function. Available: ${methods}`);
+        return NextResponse.json({ 
+            success: false, 
+            message: "Auth configuration error",
+            debug: { methods }
+        }, { status: 500 });
+    }
+
+    const session = await createSessionFn({
         body: {
             userId: userId,
         }
     });
-
-    if (!session) {
-        console.error("[MagicLogin] Failed to create session in Better Auth (session is null)");
-        return NextResponse.json({ success: false, message: "Failed to create session" }, { status: 500 });
-    }
 
     // Handle both { session, user } and direct session object structures
     const sessionData = (session as any).session || session;
