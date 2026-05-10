@@ -49,7 +49,8 @@ export default function ScannerPage() {
     if (token && !session) {
       handleMagicLogin(token)
     } else if (!isMobile && session) {
-      fetchMagicToken()
+      // We don't need magic tokens anymore, we'll just send the email in the QR
+      setMagicToken(null) 
     }
     
     const baseUrl = window.location.origin + window.location.pathname
@@ -190,7 +191,11 @@ export default function ScannerPage() {
 
   // Desktop UI: Show QR Code to move to mobile
   if (!isMobile) {
-    const mobileUrl = magicToken ? `${currentUrl}?token=${magicToken}` : currentUrl;
+    // New flow: Send user to login with their email pre-filled
+    const userEmail = session?.user?.email;
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const loginUrl = `${origin}/login?email=${encodeURIComponent(userEmail || "")}&redirectTo=/scanner`;
+    
     return (
         <div className="flex flex-col items-center justify-center h-[calc(100vh-var(--header-height))] p-4 bg-background overflow-hidden relative">
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-20">
@@ -208,8 +213,8 @@ export default function ScannerPage() {
 
                 <Card className="border-2 border-primary/10 bg-card/50 backdrop-blur-sm overflow-hidden shadow-2xl p-8 flex flex-col items-center">
                     <div className="bg-white p-4 rounded-[2rem] shadow-inner mb-6">
-                        {magicToken ? (
-                            <QRCodeSVG value={mobileUrl} size={200} level="H" includeMargin={false} />
+                        {session?.user?.email ? (
+                            <QRCodeSVG value={loginUrl} size={200} level="H" includeMargin={false} />
                         ) : (
                             <div className="size-[200px] flex items-center justify-center bg-gray-50 rounded-2xl animate-pulse">
                                 <Loader2Icon className="animate-spin size-8 text-primary/30" />
@@ -217,25 +222,14 @@ export default function ScannerPage() {
                         )}
                     </div>
                     
-                    {!magicToken && (
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="mb-4 text-xs"
-                            onClick={fetchMagicToken}
-                        >
-                            <RotateCwIcon className="mr-2 size-3" />
-                            Retry Loading Code
-                        </Button>
-                    )}
                     <div className="space-y-3 w-full">
                         <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
                             <div className="size-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold">1</div>
-                            <p className="text-xs font-medium">Open Camera on your phone</p>
+                            <p className="text-xs font-medium">Scan code with your phone</p>
                         </div>
                         <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
                             <div className="size-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold">2</div>
-                            <p className="text-xs font-medium">Scan code to log in & start scanning</p>
+                            <p className="text-xs font-medium">Log in with your password to start scanning</p>
                         </div>
                     </div>
                 </Card>
