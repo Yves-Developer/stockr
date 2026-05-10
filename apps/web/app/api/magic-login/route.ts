@@ -24,29 +24,15 @@ export async function POST(req: Request) {
     const userId = verifyRes.data.userId;
 
     // 2. Create a session on the Vercel side using better-auth
-    // We use any because the type system sometimes struggles with the generated API
-    const session = await (auth.api as any).createSession({
-        userId: userId,
+    // Use the internal API to create a session and get the headers
+    const session = await auth.api.createSession({
+        body: {
+            userId: userId,
+        },
+        asResponse: true // This is key: it returns a Response object with Set-Cookie headers
     });
 
-    if (!session) {
-        return NextResponse.json({ success: false, message: "Failed to create session" }, { status: 500 });
-    }
-
-    // 3. Set the session cookie on the Vercel domain
-    // better-auth.api.createSession should return a 'headers' property containing the Set-Cookie
-    const response = NextResponse.json({ 
-        success: true, 
-        message: "Logged in successfully",
-        session: session.session,
-        user: session.user
-    });
-
-    // Manually set the cookie header if it's provided in the session response
-    // In better-auth, createSession usually returns { session, user, cookie? } or similar
-    // We need to ensure the client gets the cookie.
-    
-    return response;
+    return session; // This returns the response directly with the Set-Cookie headers
   } catch (error: any) {
     console.error("Magic login error:", error);
     return NextResponse.json({ 
