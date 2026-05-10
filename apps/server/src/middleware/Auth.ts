@@ -14,14 +14,16 @@ export const protect = async (
   next: NextFunction
 ) => {
   try {
-    console.log("Headers:", req.headers.cookie);
+    console.log("Cookie Header:", req.headers.cookie);
+    console.log("Auth Header:", req.headers.authorization);
+    
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),
     });
-    console.log("Session found:", !!session);
+    console.log("Session resolved:", !!session);
 
     if (!session || !session.user) {
-      console.log("Auth failed: No session or user found");
+      console.log("Auth failed: No session or user found for header:", req.headers.authorization);
       return res.status(401).json({ 
         success: false, 
         message: "Not authorized",
