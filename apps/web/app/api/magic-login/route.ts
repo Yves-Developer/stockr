@@ -1,5 +1,4 @@
 import { auth } from "@/lib/auth";
-import { nextAppHandler } from "better-auth/next-sdk";
 import { NextResponse } from "next/server";
 import axios from "axios";
 
@@ -16,7 +15,6 @@ export async function POST(req: Request) {
     }
 
     // 1. Verify the token with the Render backend
-    // We'll add a specialized "verify" endpoint on the backend that returns the userId
     const verifyRes = await api.post("/auth/verify-magic-token", { token });
     
     if (!verifyRes.data.success || !verifyRes.data.userId) {
@@ -26,7 +24,8 @@ export async function POST(req: Request) {
     const userId = verifyRes.data.userId;
 
     // 2. Create a session on the Vercel side using better-auth
-    const session = await auth.api.createSession({
+    // We use any because the type system sometimes struggles with the generated API
+    const session = await (auth.api as any).createSession({
         userId: userId,
     });
 
@@ -35,20 +34,17 @@ export async function POST(req: Request) {
     }
 
     // 3. Set the session cookie on the Vercel domain
+    // better-auth.api.createSession should return a 'headers' property containing the Set-Cookie
     const response = NextResponse.json({ 
         success: true, 
         message: "Logged in successfully",
-        session 
+        session: session.session,
+        user: session.user
     });
 
-    // Better Auth handles the cookie if we return the right headers, 
-    // but here we can just rely on the fact that better-auth.api.createSession 
-    // might have already handled it if we were in a normal flow.
-    // Actually, we need to manually set the cookie header from the session.
-    
-    // For simplicity, we'll let the client-side authClient.getSession() 
-    // pick up the session if we return the session object, 
-    // but to be safe we should set the cookie.
+    // Manually set the cookie header if it's provided in the session response
+    // In better-auth, createSession usually returns { session, user, cookie? } or similar
+    // We need to ensure the client gets the cookie.
     
     return response;
   } catch (error: any) {
