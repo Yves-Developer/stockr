@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {
-    let backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    let backendUrl = process.env.BACKEND_URL || "https://stockr-server.onrender.com";
     
     // Ensure we have a clean base URL without trailing slashes or /api
     backendUrl = backendUrl.replace(/\/+$/, "");
