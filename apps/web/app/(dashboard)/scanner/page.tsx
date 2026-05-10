@@ -40,6 +40,7 @@ export default function ScannerPage() {
   const [isLoggingIn, setIsLoggingIn] = React.useState(false)
   const html5QrCode = React.useRef<Html5Qrcode | null>(null)
   const [currentUrl, setCurrentUrl] = React.useState("")
+  const [magicToken, setMagicToken] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search)
@@ -47,26 +48,21 @@ export default function ScannerPage() {
 
     if (token && !session) {
       handleMagicLogin(token)
-    } else if (!isMobile) {
+    } else if (!isMobile && session) {
       fetchMagicToken()
     }
     
-    // Set base URL without token for QR code
     const baseUrl = window.location.origin + window.location.pathname
     setCurrentUrl(baseUrl)
-  }, [isMobile, session])
+  }, [isMobile, !!session])
 
   const handleMagicLogin = async (token: string) => {
     setIsLoggingIn(true)
     try {
-      // Use local Next.js API route instead of Render backend
-      // so it can set the session cookie on the Vercel domain
       const res = await axios.post("/api/magic-login", { token })
       if (res.data.success) {
         toast.success("Logged in automatically!")
-        // Refresh authClient state
         await authClient.getSession()
-        // Remove token from URL
         window.history.replaceState({}, document.title, window.location.pathname)
       }
     } catch (err) {
@@ -81,8 +77,7 @@ export default function ScannerPage() {
     try {
       const res = await api.get("/auth/magic-token")
       if (res.data.success) {
-        const baseUrl = window.location.origin + window.location.pathname
-        setCurrentUrl(`${baseUrl}?token=${res.data.token}`)
+        setMagicToken(res.data.token)
       }
     } catch (err) {
       console.error("Failed to fetch magic token:", err)
@@ -117,8 +112,7 @@ export default function ScannerPage() {
       )
     } catch (err: any) {
       setIsScanning(false)
-      console.error("Camera Error:", err)
-      setError("Camera access failed. Ensure you are on a secure connection.")
+      setError("Camera access failed.")
       toast.error("Could not start camera")
     } finally {
       setIsLoading(false)
@@ -137,13 +131,13 @@ export default function ScannerPage() {
   }
 
   React.useEffect(() => {
-    if (isMobile) {
+    if (isMobile && session) {
       startScanner()
     }
     return () => {
       stopScanner()
     }
-  }, [isMobile])
+  }, [isMobile, !!session])
 
   async function onScanSuccess(decodedText: string) {
     setScanResult(decodedText)
@@ -183,68 +177,52 @@ export default function ScannerPage() {
 
   // Desktop UI: Show QR Code to move to mobile
   if (!isMobile) {
+    const mobileUrl = magicToken ? `${currentUrl}?token=${magicToken}` : currentUrl;
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-var(--header-height))] p-4 bg-background overflow-hidden">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center space-y-1">
-            <div className="inline-flex size-12 items-center justify-center rounded-3xl bg-primary/10 mb-1 border border-primary/20">
-              <MonitorSmartphoneIcon className="size-6 text-primary" />
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-var(--header-height))] p-4 bg-background overflow-hidden relative">
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-20">
+                <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full" />
+                <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight">Connect Phone Scanner</h1>
-            <p className="text-muted-foreground text-xs max-w-[280px] mx-auto">
-              Scan this QR code to use your phone as a wireless barcode scanner.
-            </p>
-          </div>
 
-          <Card className="border-2 border-primary/10 bg-card/50 backdrop-blur-sm overflow-hidden shadow-xl">
-            <CardContent className="flex flex-col items-center justify-center p-6 gap-6">
-              <div className="relative p-4 bg-white rounded-[2rem] shadow-xl border-4 border-primary/5">
-                {currentUrl ? (
-                  <QRCodeSVG 
-                    value={currentUrl} 
-                    size={180}
-                    level="H"
-                    includeMargin={false}
-                  />
-                ) : (
-                  <div className="size-[180px] flex items-center justify-center">
-                    <Loader2Icon className="animate-spin size-6 text-primary" />
-                  </div>
-                )}
-                
-                {/* Branded Center Icon */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="bg-white p-2 rounded-xl shadow-lg border border-primary/20">
-                    <QrCodeIcon className="size-6 text-primary" />
-                  </div>
+            <div className="w-full max-w-md space-y-6 relative z-10">
+                <div className="text-center space-y-1">
+                    <h1 className="text-2xl font-black tracking-tighter italic uppercase leading-none mb-2">Connect Mobile <span className="text-primary">Terminal</span></h1>
+                    <p className="text-muted-foreground text-sm max-w-[280px] mx-auto">
+                        Scan this QR code with your phone to log in automatically and start scanning.
+                    </p>
                 </div>
-              </div>
-              
-              <div className="space-y-2 w-full">
-                <div className="flex items-center gap-3 p-2.5 rounded-xl bg-primary/5 border border-primary/10">
-                  <div className="size-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold shrink-0">
-                    1
-                  </div>
-                  <p className="text-[11px] font-medium">Open camera on your phone</p>
-                </div>
-                <div className="flex items-center gap-3 p-2.5 rounded-xl bg-primary/5 border border-primary/10">
-                  <div className="size-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold shrink-0">
-                    2
-                  </div>
-                  <p className="text-[11px] font-medium">Scan the code to launch mobile scanner</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          <div className="flex justify-center">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-8" onClick={() => window.history.back()}>
-              Return to Dashboard
-            </Button>
-          </div>
+                <Card className="border-2 border-primary/10 bg-card/50 backdrop-blur-sm overflow-hidden shadow-2xl p-8 flex flex-col items-center">
+                    <div className="bg-white p-4 rounded-[2rem] shadow-inner mb-6">
+                        {magicToken ? (
+                            <QRCodeSVG value={mobileUrl} size={200} level="H" includeMargin={false} />
+                        ) : (
+                            <div className="size-[200px] flex items-center justify-center bg-gray-50 rounded-2xl animate-pulse">
+                                <Loader2Icon className="animate-spin size-8 text-primary/30" />
+                            </div>
+                        )}
+                    </div>
+                    <div className="space-y-3 w-full">
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                            <div className="size-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold">1</div>
+                            <p className="text-xs font-medium">Open Camera on your phone</p>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                            <div className="size-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold">2</div>
+                            <p className="text-xs font-medium">Scan code to log in & start scanning</p>
+                        </div>
+                    </div>
+                </Card>
+
+                <div className="flex justify-center pt-4">
+                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary transition-all" onClick={() => window.history.back()}>
+                        Back to Dashboard
+                    </Button>
+                </div>
+            </div>
         </div>
-      </div>
-    )
+    );
   }
 
   // Mobile UI: Camera Scanner
