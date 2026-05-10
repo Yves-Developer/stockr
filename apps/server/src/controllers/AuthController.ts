@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import User from "../models/User";
 import { auth } from "../lib/auth";
 import crypto from "crypto";
+import mongoose from "mongoose";
 
 // ─── GET /api/auth/magic-token ───────────────────────────────────────────────
 // Generate a magic token for the current logged-in user
