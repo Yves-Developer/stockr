@@ -43,7 +43,10 @@ const UserSchema = new Schema<IUser>(
     magicToken: { type: String },
     magicTokenExpires: { type: Date },
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    collection: "user" // Explicitly match better-auth collection name
+  }
 );
 
 // Hash password before saving

@@ -33,6 +33,12 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Debug Logger
+app.use((req, _res, next) => {
+  console.log(`[Server] ${req.method} ${req.url}`);
+  next();
+});
+
 // ---------- Routes ----------
 app.get("/", (_req: Request, res: Response) => {
   res.json({ message: "🚀 Stockr Inventory API is running" });
