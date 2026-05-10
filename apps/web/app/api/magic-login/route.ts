@@ -1,6 +1,7 @@
-import { auth } from "../../../lib/auth";
+import { auth, db } from "../../../lib/auth";
 import { NextResponse } from "next/server";
 import axios from "axios";
+import crypto from "crypto";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "https://stockr-server.onrender.com/api",
@@ -28,35 +29,53 @@ export async function POST(req: Request) {
     const userId = verifyRes.data.userId;
     console.log("[MagicLogin] Token verified for userId:", userId);
 
-    // 2. Create a session on the Vercel side
-    console.log("[MagicLogin] Creating session in Better Auth...");
-    
     const authApi = auth.api as any;
     const createSessionFn = authApi?.createSession;
 
-    if (typeof createSessionFn !== "function") {
-        const methods = Object.keys(authApi || {}).join(", ");
-        console.error(`[MagicLogin] createSession is not a function. Available: ${methods}`);
-        return NextResponse.json({ 
-            success: false, 
-            message: "Auth configuration error",
-            debug: { methods }
-        }, { status: 500 });
+    let sessionData: any;
+    let userData: any = null;
+    let finalSessionToken: string;
+
+    if (typeof createSessionFn === "function") {
+        console.log("[MagicLogin] Using Better Auth API to create session...");
+        const session = await createSessionFn({
+            body: {
+                userId: userId,
+            }
+        });
+
+        if (!session) {
+            console.error("[MagicLogin] Failed to create session in Better Auth (session is null)");
+            return NextResponse.json({ success: false, message: "Failed to create session" }, { status: 500 });
+        }
+
+        // Handle both { session, user } and direct session object structures
+        sessionData = (session as any).session || session;
+        userData = (session as any).user || null;
+        finalSessionToken = sessionData?.token || (sessionData as any).id;
+    } else {
+        console.warn("[MagicLogin] createSession not found. Falling back to MANUAL database insertion...");
+        
+        finalSessionToken = crypto.randomBytes(40).toString("hex");
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+
+        const newSession = {
+            token: finalSessionToken,
+            userId: userId,
+            expiresAt: expiresAt,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            userAgent: req.headers.get("user-agent") || "unknown",
+            ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+        };
+
+        await db.collection("session").insertOne(newSession);
+        console.log("[MagicLogin] Manual session record created in 'session' collection");
     }
 
-    const session = await createSessionFn({
-        body: {
-            userId: userId,
-        }
-    });
-
-    // Handle both { session, user } and direct session object structures
-    const sessionData = (session as any).session || session;
-    const userData = (session as any).user || null;
-    const finalSessionToken = sessionData?.token || (sessionData as any).id;
-
     if (!finalSessionToken) {
-        console.error("[MagicLogin] No token found in session object:", JSON.stringify(session));
+        console.error("[MagicLogin] No token generated");
         return NextResponse.json({ success: false, message: "Session token missing" }, { status: 500 });
     }
 
