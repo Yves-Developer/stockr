@@ -193,7 +193,8 @@ export default function ScannerPage() {
   if (!isMobile) {
     // New flow: Send user to login with their email pre-filled
     const userEmail = session?.user?.email;
-    const loginUrl = `${window.location.origin}/login?email=${encodeURIComponent(userEmail || "")}&redirectTo=/scanner`;
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const loginUrl = `${origin}/login?email=${encodeURIComponent(userEmail || "")}&redirectTo=/scanner`;
     
     return (
         <div className="flex flex-col items-center justify-center h-[calc(100vh-var(--header-height))] p-4 bg-background overflow-hidden relative">

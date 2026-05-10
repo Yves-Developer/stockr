@@ -2,6 +2,7 @@
 
 import { LoginForm } from "@/components/login-form"
 import { GalleryVerticalEndIcon } from "lucide-react"
+import { Suspense } from "react"
 
 export default function LoginPage() {
   return (
@@ -13,7 +14,9 @@ export default function LoginPage() {
           </div>
           <span className="bg-gradient-to-r from-primary to-primary/40 bg-clip-text text-transparent">Stockr</span>
         </a>
-        <LoginForm />
+        <Suspense fallback={<div className="h-[400px] w-full animate-pulse bg-muted rounded-xl" />}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   )
