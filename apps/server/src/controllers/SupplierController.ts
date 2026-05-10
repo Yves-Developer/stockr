@@ -88,8 +88,13 @@ export const createSupplier = async (req: Request, res: Response) => {
 
     const supplier = await Supplier.create({ name, email, phone, address });
     res.status(201).json({ success: true, data: supplier });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Server error", error });
+  } catch (error: any) {
+    console.error("❌ Supplier Creation Error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || "Server error", 
+      error: process.env.NODE_ENV === "development" ? error : undefined 
+    });
   }
 };
 
