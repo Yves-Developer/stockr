@@ -84,13 +84,15 @@ export default function ScannerPage() {
   }
 
   const fetchMagicToken = async () => {
+    console.log("[PCAuth] Fetching magic token from /magic/magic-token...");
     try {
-      const res = await api.get("/auth/magic-token")
+      const res = await api.get("/magic/magic-token")
+      console.log("[PCAuth] Magic token received:", res.data.success);
       if (res.data.success) {
         setMagicToken(res.data.token)
       }
-    } catch (err) {
-      console.error("Failed to fetch magic token:", err)
+    } catch (err: any) {
+      console.error("[PCAuth] Failed to fetch magic token:", err.response?.status, err.message)
     }
   }
 
