@@ -17,4 +17,15 @@ const api = axios.create({
   withCredentials: true,
 });
 
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    // Better Auth stores the session token in local storage by default
+    const token = localStorage.getItem("better-auth.session_token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 export default api;
