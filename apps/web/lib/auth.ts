@@ -3,9 +3,9 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { MongoClient } from "mongodb";
 import { bearer } from "better-auth/plugins";
 
-const client = new MongoClient(process.env.MONGODB_URI!);
+export const client = new MongoClient(process.env.MONGODB_URI!);
 const dbName = process.env.MONGODB_DB_NAME || "inventory_db";
-const db = client.db(dbName);
+export const db = client.db(dbName);
 
 export const auth = betterAuth({
   database: mongodbAdapter(db),
@@ -21,5 +21,4 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  // You can add more options here (social logins, etc.)
 });
