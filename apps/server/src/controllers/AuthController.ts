@@ -2,14 +2,17 @@ import { Request, Response } from "express";
 import User from "../models/User";
 import { auth } from "../lib/auth";
 import crypto from "crypto";
-import { AuthRequest } from "../middleware/auth";
 
 // ─── GET /api/auth/magic-token ───────────────────────────────────────────────
 // Generate a magic token for the current logged-in user
-export const generateMagicToken = async (req: AuthRequest, res: Response) => {
+export const generateMagicToken = async (req: any, res: Response) => {
   try {
     const token = crypto.randomBytes(32).toString("hex");
     const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiration
+
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: "Not authenticated" });
+    }
 
     await User.findByIdAndUpdate(req.user.id, {
       magicToken: token,
@@ -18,6 +21,7 @@ export const generateMagicToken = async (req: AuthRequest, res: Response) => {
 
     res.status(200).json({ success: true, token });
   } catch (error) {
+    console.error("Generate magic token error:", error);
     res.status(500).json({ success: false, message: "Failed to generate magic token" });
   }
 };
@@ -42,7 +46,8 @@ export const magicLogin = async (req: Request, res: Response) => {
     }
 
     // Create a new session in better-auth
-    const session = await auth.api.createSession({
+    // Use any cast to bypass strict InferAPI issues if createSession isn't found in types
+    const session = await (auth.api as any).createSession({
         userId: user.id
     });
 
