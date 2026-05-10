@@ -51,7 +51,15 @@ export default function ScannerPage() {
         html5QrCode.current = new Html5Qrcode("reader")
       }
 
-      const config = { fps: 10, qrbox: { width: 250, height: 250 } }
+      setIsScanning(true)
+      // Give the DOM a moment to render the #reader div before starting
+      await new Promise(r => setTimeout(r, 100))
+
+      const config = { 
+        fps: 10, 
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0 
+      }
       
       await html5QrCode.current.start(
         { facingMode: "environment" },
@@ -59,8 +67,8 @@ export default function ScannerPage() {
         onScanSuccess,
         () => {} // Error callback
       )
-      setIsScanning(true)
     } catch (err: any) {
+      setIsScanning(false)
       console.error("Camera Error:", err)
       setError("Camera access failed. Ensure you are on a secure connection (HTTPS or localhost).")
       toast.error("Could not start camera")
@@ -190,8 +198,20 @@ export default function ScannerPage() {
           </p>
         </div>
 
-        <Card className="relative overflow-hidden border-2 border-primary/20 aspect-square flex items-center justify-center bg-black/5 rounded-3xl">
-          <div id="reader" className={`w-full h-full ${!isScanning && 'hidden'}`}></div>
+        <Card className={`relative overflow-hidden border-2 border-primary/20 aspect-square bg-black rounded-3xl ${!isScanning && 'flex items-center justify-center bg-black/5'}`}>
+          <div id="reader" className="w-full h-full"></div>
+          
+          <style jsx global>{`
+            #reader video {
+              width: 100% !important;
+              height: 100% !important;
+              object-fit: cover !important;
+              border-radius: 1.5rem;
+            }
+            #reader {
+              border: none !important;
+            }
+          `}</style>
           
           {!isScanning && !scanResult && (
             <div className="flex flex-col items-center gap-4 p-8 text-center">
