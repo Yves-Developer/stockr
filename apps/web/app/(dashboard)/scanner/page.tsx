@@ -66,6 +66,7 @@ export default function ScannerPage() {
         if (res.data.sessionToken) {
           console.log("[MobileAuth] Saving session token to localStorage");
           localStorage.setItem("better-auth.session_token", res.data.sessionToken);
+          localStorage.setItem("better-auth.session-token", res.data.sessionToken);
         }
         
         toast.success("Logged in automatically!")
