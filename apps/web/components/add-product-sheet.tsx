@@ -35,7 +35,15 @@ const productSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productSchema>
 
-export function AddProductSheet({ trigger }: { trigger?: React.ReactNode }) {
+export function AddProductSheet({ 
+  trigger, 
+  initialValues,
+  onSuccess
+}: { 
+  trigger?: React.ReactNode,
+  initialValues?: Partial<ProductFormValues>,
+  onSuccess?: () => void
+}) {
   const [open, setOpen] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [categories, setCategories] = React.useState<{ _id: string; name: string }[]>([])
@@ -44,15 +52,25 @@ export function AddProductSheet({ trigger }: { trigger?: React.ReactNode }) {
   const form = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      price: 0,
-      quantity: 0,
-      sku: "",
-      categoryId: "",
-      supplierId: "",
+      name: initialValues?.name || "",
+      description: initialValues?.description || "",
+      price: initialValues?.price || 0,
+      quantity: initialValues?.quantity || 0,
+      sku: initialValues?.sku || "",
+      categoryId: initialValues?.categoryId || "",
+      supplierId: initialValues?.supplierId || "",
     },
   })
+
+  // Update form values if initialValues change (e.g. new scan)
+  React.useEffect(() => {
+    if (initialValues) {
+      form.reset({
+        ...form.getValues(),
+        ...initialValues
+      })
+    }
+  }, [initialValues, form])
 
   React.useEffect(() => {
     if (open) {
@@ -110,6 +128,7 @@ export function AddProductSheet({ trigger }: { trigger?: React.ReactNode }) {
       toast.success("Product created successfully")
       setOpen(false)
       form.reset()
+      if (onSuccess) onSuccess()
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to create product")
     } finally {
