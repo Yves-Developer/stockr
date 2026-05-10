@@ -21,8 +21,8 @@ import { QRCodeSVG } from "qrcode.react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { AddProductSheet } from "@/components/add-product-sheet"
-import { StockMovementSheet } from "@/components/stock-movement-sheet"
+import { AddProductDialog } from "@/components/add-product-dialog"
+import { StockMovementDialog } from "@/components/stock-movement-dialog"
 import api from "@/lib/api"
 import { useSidebar } from "@/components/ui/sidebar"
 
@@ -273,8 +273,9 @@ export default function ScannerPage() {
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3 pt-2">
-                      <StockMovementSheet 
+                      <StockMovementDialog 
                         product={product}
+                        type="IN"
                         onSuccess={handleActionSuccess}
                         trigger={
                           <Button className="bg-green-500 hover:bg-green-600 text-black font-bold h-12 rounded-xl w-full">
@@ -283,8 +284,9 @@ export default function ScannerPage() {
                           </Button>
                         }
                       />
-                      <StockMovementSheet 
+                      <StockMovementDialog 
                         product={product}
+                        type="OUT"
                         onSuccess={handleActionSuccess}
                         trigger={
                           <Button className="bg-red-500 hover:bg-red-600 text-black font-bold h-12 rounded-xl w-full">
@@ -308,9 +310,9 @@ export default function ScannerPage() {
                   </div>
 
                   <div className="mt-4 w-full space-y-4">
-                    <AddProductSheet 
+                    <AddProductDialog 
                       initialValues={{ sku: scanResult }}
-                      onSuccess={handleActionSuccess} // Need to make sure AddProductSheet supports this or similar
+                      onSuccess={handleActionSuccess}
                       trigger={
                         <Button className="bg-primary text-black font-bold h-14 rounded-xl w-full text-lg">
                           <PlusIcon className="mr-2 size-6" />
