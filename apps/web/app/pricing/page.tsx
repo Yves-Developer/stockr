@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import { CheckIcon, StarIcon, ShieldCheckIcon, RocketIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
