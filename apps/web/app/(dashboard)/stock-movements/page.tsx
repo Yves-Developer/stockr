@@ -12,7 +12,7 @@ export default function StockMovementsPage() {
           </p>
         </div>
       </div>
-      <DataTable data={data} />
+      <DataTable data={data} endpoint="/stock-movements" />
     </div>
   )
 }

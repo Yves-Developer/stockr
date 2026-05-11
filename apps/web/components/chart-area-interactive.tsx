@@ -143,12 +143,35 @@ const chartConfig = {
 export function ChartAreaInteractive() {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState("90d")
+  const [loading, setLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    // Simulate data fetching
+    const timer = setTimeout(() => setLoading(false), 800)
+    return () => clearTimeout(timer)
+  }, [])
 
   React.useEffect(() => {
     if (isMobile) {
       setTimeRange("7d")
     }
   }, [isMobile])
+
+  if (loading) {
+    return (
+      <Card className="@container/card overflow-hidden">
+        <CardHeader>
+          <div className="space-y-2">
+            <div className="h-6 w-32 animate-pulse rounded bg-muted" />
+            <div className="h-4 w-48 animate-pulse rounded bg-muted" />
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="h-[250px] w-full animate-pulse rounded-xl bg-muted/30" />
+        </CardContent>
+      </Card>
+    )
+  }
 
   const filteredData = chartData.filter((item) => {
     const date = new Date(item.date)

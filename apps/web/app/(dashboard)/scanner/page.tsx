@@ -38,6 +38,7 @@ export default function ScannerPage() {
   const [error, setError] = React.useState<string | null>(null)
   const [isSuccess, setIsSuccess] = React.useState(false)
   const [isLoggingIn, setIsLoggingIn] = React.useState(false)
+  const [isFetchingProduct, setIsFetchingProduct] = React.useState(false)
   const html5QrCode = React.useRef<Html5Qrcode | null>(null)
   const [currentUrl, setCurrentUrl] = React.useState("")
   const [magicToken, setMagicToken] = React.useState<string | null>(null)
@@ -156,6 +157,7 @@ export default function ScannerPage() {
   async function onScanSuccess(decodedText: string) {
     setScanResult(decodedText)
     stopScanner()
+    setIsFetchingProduct(true)
 
     try {
       const res = await api.get(`/products?search=${decodedText}`)
@@ -168,6 +170,8 @@ export default function ScannerPage() {
       }
     } catch (error) {
       toast.error("Failed to lookup product")
+    } finally {
+      setIsFetchingProduct(false)
     }
   }
 
@@ -321,7 +325,17 @@ export default function ScannerPage() {
               </div>
             )}
 
-            {scanResult && !isSuccess && (
+            {isFetchingProduct && (
+              <div className="flex flex-col items-center justify-center gap-4 p-8 text-center animate-in fade-in duration-300 z-50 bg-black/80 backdrop-blur-sm absolute inset-0">
+                <Loader2Icon className="size-16 text-primary animate-spin" />
+                <div className="space-y-1">
+                  <p className="text-lg font-black italic uppercase tracking-tighter text-white">Searching...</p>
+                  <p className="text-xs text-muted-foreground font-mono">{scanResult}</p>
+                </div>
+              </div>
+            )}
+
+            {scanResult && !isSuccess && !isFetchingProduct && (
               <div className="flex flex-col items-center gap-4 p-8 text-center animate-in fade-in zoom-in duration-300 z-10 bg-black/95 absolute inset-0">
                 {product ? (
                   <>
