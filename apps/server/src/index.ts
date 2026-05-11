@@ -67,6 +67,21 @@ async function startServer() {
   try {
     await connectDB();
 
+    // Sync indexes to ensure sparse unique indexes are applied (fixes E11000 duplicate key on null/undefined)
+    console.log("🔄 Syncing database indexes...");
+    const Supplier = (await import("./models/Supplier")).default;
+    const Product = (await import("./models/Product")).default;
+    const Category = (await import("./models/Category")).default;
+    const StockMovement = (await import("./models/StockMovement")).default;
+
+    await Promise.all([
+      Supplier.syncIndexes(),
+      Product.syncIndexes(),
+      Category.syncIndexes(),
+      StockMovement.syncIndexes(),
+    ]);
+    console.log("✅ Indexes synchronized");
+
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
