@@ -1,11 +1,24 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import mongoose from "mongoose";
+import { MongoClient } from "mongodb";
 
-// We use mongoose.connection.db which will be available after connectDB is called.
+const client = new MongoClient(process.env.MONGO_URI!);
+const db = client.db();
+
 export const auth = betterAuth({
-  database: mongodbAdapter(mongoose.connection.db as any),
+  database: mongodbAdapter(db),
+  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL,
+  trustedOrigins: ["http://localhost:3000"],
   emailAndPassword: {
     enabled: true,
+  },
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "staff",
+      },
+    },
   },
 });

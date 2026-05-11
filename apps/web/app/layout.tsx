@@ -18,7 +18,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "Stockr | Smart Business Assistant for Rwanda",
-  description: "Turn your smartphone into a smart business assistant. EBM replacement, stock tracking, and RRA compliance for Rwandan entrepreneurs.",
+  description: "Turn your smartphone into a smart business assistant. EBM hardware replacement, stock tracking, and RRA compliance for Rwandan entrepreneurs.",
 };
 
 export default function RootLayout({

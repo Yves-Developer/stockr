@@ -1,18 +1,15 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
+  // Use a relative path to leverage the Next.js rewrite proxy.
+  // This ensures cookies are sent automatically without cross-origin issues.
+  baseURL: typeof window === "undefined" 
+    ? "http://localhost:5000/api" 
+    : "/api/backend",
   headers: {
     "Content-Type": "application/json",
   },
-});
-
-// Add a request interceptor for authentication if needed
-api.interceptors.request.use((config) => {
-  // BetterAuth handles sessions via cookies usually, 
-  // so withCredentials: true might be needed if cross-domain
-  config.withCredentials = true;
-  return config;
+  withCredentials: true,
 });
 
 export default api;

@@ -8,9 +8,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import Link from "next/link"
 import { CirclePlusIcon, MailIcon } from "lucide-react"
 import { AddProductSheet } from "@/components/add-product-sheet"
-import { ScannerBridgeDialog } from "@/components/scanner-bridge-dialog"
 
 export function NavMain({
   items,
@@ -48,25 +48,16 @@ export function NavMain({
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
-          {items.map((item) => {
-            const isScanner = item.title === "Barcode Scanner"
-            const content = (
-              <SidebarMenuButton tooltip={item.title} className="group-data-[collapsible=icon]:size-8">
-                {item.icon && <div className="size-4 opacity-70 group-hover:opacity-100 transition-opacity">{item.icon}</div>}
-                <span className="font-medium tracking-tight">{item.title}</span>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild tooltip={item.title} className="group-data-[collapsible=icon]:size-8">
+                <Link href={item.url}>
+                  {item.icon && <div className="size-4 opacity-70 group-hover:opacity-100 transition-opacity">{item.icon}</div>}
+                  <span className="font-medium tracking-tight">{item.title}</span>
+                </Link>
               </SidebarMenuButton>
-            )
-
-            return (
-              <SidebarMenuItem key={item.title}>
-                {isScanner ? (
-                  <ScannerBridgeDialog trigger={content} />
-                ) : (
-                  content
-                )}
-              </SidebarMenuItem>
-            )
-          })}
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

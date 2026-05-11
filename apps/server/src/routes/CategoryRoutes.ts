@@ -12,8 +12,8 @@ const router: Router = Router();
 
 router.get("/", protect, getAllCategories);
 router.get("/:id", protect, getCategoryById);
-router.post("/", protect, authorize("admin", "manager"), createCategory);
-router.put("/:id", protect, authorize("admin", "manager"), updateCategory);
+router.post("/", protect, authorize("admin", "manager", "staff"), createCategory);
+router.put("/:id", protect, authorize("admin", "manager", "staff"), updateCategory);
 router.delete("/:id", protect, authorize("admin"), deleteCategory);
 
 export default router;
