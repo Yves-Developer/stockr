@@ -70,6 +70,13 @@ const data = {
       ),
     },
     {
+      title: "Pricing",
+      url: "/pricing",
+      icon: (
+        <FileTextIcon />
+      ),
+    },
+    {
       title: "Get Help",
       url: "#",
       icon: (
