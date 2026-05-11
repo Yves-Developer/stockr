@@ -18,6 +18,7 @@ const SupplierSchema = new Schema<ISupplier>(
     },
     email: {
       type: String,
+      unique: true,
       sparse: true,
       trim: true,
       lowercase: true,

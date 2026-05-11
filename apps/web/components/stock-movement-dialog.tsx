@@ -26,7 +26,7 @@ const movementSchema = z.object({
   type: z.enum(["IN", "OUT"]),
   quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
   reason: z.string().min(2, "Reason is required"),
-  notes: z.string().optional(),
+  note: z.string().optional(),
 })
 
 type MovementFormValues = z.infer<typeof movementSchema>
@@ -57,7 +57,7 @@ export function StockMovementDialog({
       type: type,
       quantity: 1,
       reason: type === "OUT" ? "Sale" : "Restock",
-      notes: "",
+      note: "",
     },
   })
 
@@ -68,7 +68,7 @@ export function StockMovementDialog({
         type: type,
         quantity: 1,
         reason: type === "OUT" ? "Sale" : "Restock",
-        notes: "",
+        note: "",
       });
     }
   }, [open, type, form]);
@@ -82,7 +82,7 @@ export function StockMovementDialog({
     setLoading(true)
     try {
       await api.post("/stock-movements", {
-        productId: product._id,
+        product: product._id,
         ...values,
       })
       toast.success(`Stock ${values.type === "IN" ? "increased" : "decreased"} successfully`)
@@ -124,8 +124,8 @@ export function StockMovementDialog({
             )}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
-            <Textarea id="notes" placeholder="Add any extra details..." className="resize-none" {...form.register("notes")} />
+            <Label htmlFor="note">Notes (Optional)</Label>
+            <Textarea id="note" placeholder="Add any extra details..." className="resize-none" {...form.register("note")} />
           </div>
           <DialogFooter className="pt-4">
             <Button 
