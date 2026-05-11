@@ -25,7 +25,7 @@ import { toast } from "sonner"
 const movementSchema = z.object({
   type: z.enum(["IN", "OUT"]),
   quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
-  reason: z.string().min(2, "Reason is required"),
+  reason: z.enum(["purchase", "sale", "damaged", "returned"]),
   note: z.string().optional(),
 })
 
@@ -56,7 +56,7 @@ export function StockMovementDialog({
     defaultValues: {
       type: type,
       quantity: 1,
-      reason: type === "OUT" ? "Sale" : "Restock",
+      reason: type === "OUT" ? "sale" : "purchase",
       note: "",
     },
   })
@@ -67,7 +67,7 @@ export function StockMovementDialog({
       form.reset({
         type: type,
         quantity: 1,
-        reason: type === "OUT" ? "Sale" : "Restock",
+        reason: type === "OUT" ? "sale" : "purchase",
         note: "",
       });
     }
@@ -118,7 +118,16 @@ export function StockMovementDialog({
           </div>
           <div className="grid gap-2">
             <Label htmlFor="reason">Reason</Label>
-            <Input id="reason" placeholder={type === "IN" ? "Restock" : "Sale"} {...form.register("reason")} />
+            <select 
+              id="reason" 
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              {...form.register("reason")}
+            >
+              <option value="purchase">Purchase (Restock)</option>
+              <option value="sale">Sale</option>
+              <option value="damaged">Damaged</option>
+              <option value="returned">Returned</option>
+            </select>
             {form.formState.errors.reason && (
               <p className="text-xs text-destructive">{form.formState.errors.reason.message}</p>
             )}
