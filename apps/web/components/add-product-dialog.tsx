@@ -77,8 +77,11 @@ export function AddProductDialog({
     }
   }, [open])
 
+  const [metadataLoading, setMetadataLoading] = React.useState(false)
+
   async function fetchMetadata() {
     console.log("[AddProduct] Fetching categories and suppliers...");
+    setMetadataLoading(true)
     try {
       const [catRes, supRes] = await Promise.all([
         api.get("/categories"),
@@ -92,6 +95,8 @@ export function AddProductDialog({
     } catch (error: any) {
       console.error("[AddProduct] Failed to fetch metadata:", error.response?.status, error.message);
       toast.error("Failed to load categories/suppliers. Please check connection.")
+    } finally {
+      setMetadataLoading(false)
     }
   }
 
@@ -190,28 +195,36 @@ export function AddProductDialog({
           </div>
           <div className="grid gap-2">
             <Label>Category</Label>
-            <ComboAdd
-              items={categories}
-              placeholder="Select category"
-              emptyMessage="No category found"
-              value={form.watch("categoryId")}
-              onSelect={(val) => form.setValue("categoryId", val)}
-              onCreate={handleCreateCategory}
-            />
+            {metadataLoading ? (
+              <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+            ) : (
+              <ComboAdd
+                items={categories}
+                placeholder="Select category"
+                emptyMessage="No category found"
+                value={form.watch("categoryId")}
+                onSelect={(val) => form.setValue("categoryId", val)}
+                onCreate={handleCreateCategory}
+              />
+            )}
             {form.formState.errors.categoryId && (
               <p className="text-xs text-destructive">{form.formState.errors.categoryId.message}</p>
             )}
           </div>
           <div className="grid gap-2">
             <Label>Supplier (Optional)</Label>
-            <ComboAdd
-              items={suppliers}
-              placeholder="Select supplier"
-              emptyMessage="No supplier found"
-              value={form.watch("supplierId")}
-              onSelect={(val) => form.setValue("supplierId", val)}
-              onCreate={handleCreateSupplier}
-            />
+            {metadataLoading ? (
+              <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+            ) : (
+              <ComboAdd
+                items={suppliers}
+                placeholder="Select supplier"
+                emptyMessage="No supplier found"
+                value={form.watch("supplierId")}
+                onSelect={(val) => form.setValue("supplierId", val)}
+                onCreate={handleCreateSupplier}
+              />
+            )}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>

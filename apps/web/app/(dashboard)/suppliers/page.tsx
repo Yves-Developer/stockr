@@ -13,7 +13,7 @@ export default function SuppliersPage() {
         </div>
       </div>
       {/* We can reuse DataTable here too, but in a real app we'd have a specific Suppliers table */}
-      <DataTable data={data} />
+      <DataTable data={data} endpoint="/suppliers" />
     </div>
   )
 }
