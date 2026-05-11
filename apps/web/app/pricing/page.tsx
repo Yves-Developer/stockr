@@ -59,18 +59,12 @@ const plans = [
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background Glows */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-20">
-        <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary/30 blur-[150px] rounded-full" />
-        <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-primary/20 blur-[150px] rounded-full" />
-      </div>
-
       <div className="container relative z-10 mx-auto px-4 py-24 md:py-32">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <Badge variant="outline" className="px-4 py-1 text-primary border-primary/30 bg-primary/5 uppercase tracking-widest font-bold">
             Pricing Plans
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase">
             Built for <span className="text-primary">Rwanda's</span> Finest Businesses
           </h1>
           <p className="text-muted-foreground text-lg md:text-xl">
@@ -82,27 +76,26 @@ export default function PricingPage() {
           {plans.map((plan) => (
             <Card 
               key={plan.name} 
-              className={`relative flex flex-col border-2 transition-all duration-300 hover:translate-y-[-8px] ${
+              className={`relative flex flex-col border transition-all duration-300 ${
                 plan.popular 
-                  ? "border-primary bg-primary/5 shadow-[0_0_40px_-10px_var(--primary)]" 
-                  : "border-border/50 bg-card/50 hover:border-primary/50"
+                  ? "border-primary bg-primary/5" 
+                  : "border-border/50 bg-card/50"
               }`}
             >
-              {plan.popular && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <Badge className="bg-primary text-black font-black px-4 py-1 italic uppercase">
-                    Most Popular
-                  </Badge>
-                </div>
-              )}
-
               <CardHeader className="text-center pt-8">
+                {plan.popular && (
+                  <div className="mb-4">
+                    <Badge className="bg-primary text-black font-black px-4 py-0.5 uppercase text-[10px] tracking-widest">
+                      Most Popular
+                    </Badge>
+                  </div>
+                )}
                 <div className={`mx-auto size-12 rounded-2xl flex items-center justify-center mb-4 ${
                   plan.popular ? "bg-primary text-black" : "bg-primary/10 text-primary"
                 }`}>
                   {plan.icon}
                 </div>
-                <CardTitle className="text-2xl font-black uppercase tracking-tight italic">
+                <CardTitle className="text-2xl font-black uppercase tracking-tight">
                   {plan.name}
                 </CardTitle>
                 <div className="mt-4 flex items-baseline justify-center gap-1">
@@ -131,10 +124,10 @@ export default function PricingPage() {
 
               <CardFooter className="pb-8 pt-4">
                 <Button 
-                  className={`w-full h-12 text-base font-black uppercase italic tracking-wider rounded-xl ${
+                  className={`w-full h-12 text-base font-black uppercase tracking-wider rounded-xl ${
                     plan.popular 
-                      ? "bg-primary text-black hover:bg-primary/90" 
-                      : "bg-white/5 text-white hover:bg-white/10 border border-white/10"
+                      ? "bg-primary text-black hover:bg-primary/90 shadow-none" 
+                      : "bg-white/5 text-white hover:bg-white/10 border border-white/10 shadow-none"
                   }`}
                   onClick={() => window.location.href = "/register"}
                 >
@@ -151,9 +144,9 @@ export default function PricingPage() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 opacity-40 grayscale transition-all hover:grayscale-0">
             {/* Mock RRA/EBM/Trust Logos */}
-            <div className="text-xl font-black italic tracking-tighter uppercase">RRA Compliance</div>
-            <div className="text-xl font-black italic tracking-tighter uppercase">EBM Verified</div>
-            <div className="text-xl font-black italic tracking-tighter uppercase">Rwanda FinTech</div>
+            <div className="text-xl font-black tracking-tighter uppercase">RRA Compliance</div>
+            <div className="text-xl font-black tracking-tighter uppercase">EBM Verified</div>
+            <div className="text-xl font-black tracking-tighter uppercase">Rwanda FinTech</div>
           </div>
         </div>
       </div>
