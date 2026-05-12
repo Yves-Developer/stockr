@@ -37,14 +37,14 @@ export default function LandingPage() {
           <div className="text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
               <span className="size-1.5 rounded-full bg-primary animate-pulse" />
-              EBM Hardware is dead. Long live Stockr.
+              Run Your Business Smarter,with Stockr
             </div>
             <h1 className="mx-auto max-w-4xl text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
               The smart business engine <br />
               <span className="bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent italic font-serif">for Rwandan entrepreneurs</span>
             </h1>
             <p className="mx-auto mt-8 max-w-2xl text-lg text-muted-foreground sm:text-xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-300">
-              Turn your smartphone into a high-performance business assistant. EBM replacement, real-time inventory, and RRA compliance built for speed.
+              Turn your smartphone into a high-performance business assistant. digital EBM , real-time inventory, and RRA compliance built for speed.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-500">
               <Button size="lg" className="h-12 px-8 bg-primary text-black hover:bg-primary/90">
@@ -86,7 +86,7 @@ export default function LandingPage() {
             {[
               {
                 title: "RRA Compliant",
-                desc: "Full EBM replacement with automatic synchronization to RRA servers. Zero stress tax season.",
+                desc: "Full digital EBM with automatic synchronization to RRA servers. Zero stress tax season.",
                 icon: ShieldCheck,
               },
               {
