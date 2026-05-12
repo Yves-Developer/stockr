@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Geist } from "next/font/google";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "sonner";
+import { TopProgressBar } from "@/components/top-progress-bar";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -29,8 +32,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans antialiased dark", geist.variable)}>
       <body className={cn("min-h-screen bg-background font-sans antialiased")}>
+        <React.Suspense>
+          <TopProgressBar />
+        </React.Suspense>
         <TooltipProvider>
           {children}
+          <Toaster richColors position="top-right" />
         </TooltipProvider>
       </body>
     </html>

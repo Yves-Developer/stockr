@@ -13,7 +13,7 @@ const router: Router = Router();
 router.get("/", protect, getAllStockMovements);
 router.get("/:id", protect, getStockMovementById);
 router.get("/product/:productId", protect, getMovementsByProduct);
-router.post("/", protect, authorize("admin", "manager"), createStockMovement);
+router.post("/", protect, authorize("admin", "manager", "staff"), createStockMovement);
 router.delete("/:id", protect, authorize("admin"), deleteStockMovement);
 
 export default router;

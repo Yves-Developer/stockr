@@ -8,6 +8,8 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: UserRole;
+  magicToken?: string;
+  magicTokenExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -38,15 +40,21 @@ const UserSchema = new Schema<IUser>(
       enum: ["admin", "manager", "staff"],
       default: "staff",
     },
+    magicToken: { type: String },
+    magicTokenExpires: { type: Date },
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    collection: "user" // Explicitly match better-auth collection name
+  }
 );
 
 // Hash password before saving
 UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  const user = this as any;
+  if (!user.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  user.password = await bcrypt.hash(user.password, salt);
   next();
 });
 
@@ -54,7 +62,8 @@ UserSchema.pre("save", async function (next) {
 UserSchema.methods.comparePassword = async function (
   candidatePassword: string
 ): Promise<boolean> {
-  return bcrypt.compare(candidatePassword, this.password);
+  const user = this as any;
+  return bcrypt.compare(candidatePassword, user.password);
 };
 
 export default mongoose.model<IUser>("User", UserSchema);

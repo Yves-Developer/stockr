@@ -341,8 +341,10 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
 
 export function DataTable({
   data: initialData,
+  endpoint = "/products"
 }: {
   data: z.infer<typeof schema>[]
+  endpoint?: string
 }) {
   const [data, setData] = React.useState<z.infer<typeof schema>[]>([])
   const [loading, setLoading] = React.useState(true)
@@ -350,29 +352,54 @@ export function DataTable({
   const fetchData = React.useCallback(async () => {
     setLoading(true)
     try {
-      const res = await api.get("/products")
-      const products = res.data.data
-      if (products && products.length > 0) {
-        const mapped = products.map((p: any) => ({
-          id: p._id,
-          header: p.name,
-          type: p.category?.name || "Uncategorized",
-          status: p.quantity > 10 ? "In Stock" : p.quantity > 0 ? "Low Stock" : "Out of Stock",
-          target: p.price.toString(),
-          limit: p.quantity.toString(),
-          reviewer: p.supplier?.name || "No Supplier",
-        }))
-        setData(mapped)
+      const res = await api.get(endpoint)
+      const rawData = res.data.data
+      if (rawData && rawData.length > 0) {
+        let mapped = []
+        
+        if (endpoint === "/products") {
+          mapped = rawData.map((p: any) => ({
+            id: p._id,
+            header: p.name,
+            type: p.category?.name || "Uncategorized",
+            status: p.quantity > 10 ? "In Stock" : p.quantity > 0 ? "Low Stock" : "Out of Stock",
+            target: p.price.toString(),
+            limit: p.quantity.toString(),
+            reviewer: p.supplier?.name || "No Supplier",
+          }))
+        } else if (endpoint === "/suppliers") {
+          mapped = rawData.map((s: any) => ({
+            id: s._id,
+            header: s.name,
+            type: s.email || "No Email",
+            status: "Active",
+            target: "0",
+            limit: s.phone || "No Phone",
+            reviewer: s.address || "No Address",
+          }))
+        } else if (endpoint === "/stock-movements") {
+          mapped = rawData.map((m: any) => ({
+            id: m._id,
+            header: m.product?.name || "Deleted Product",
+            type: m.type,
+            status: m.reason,
+            target: m.quantity.toString(),
+            limit: new Date(m.date).toLocaleDateString(),
+            reviewer: m.note || "-",
+          }))
+        }
+        
+        setData(mapped.length > 0 ? mapped : initialData)
       } else {
         setData(initialData)
       }
     } catch (error) {
-      console.error("Failed to fetch products", error)
+      console.error(`Failed to fetch from ${endpoint}`, error)
       setData(initialData)
     } finally {
       setLoading(false)
     }
-  }, [initialData])
+  }, [initialData, endpoint])
 
   React.useEffect(() => {
     fetchData()
@@ -508,7 +535,17 @@ export function DataTable({
                 ))}
               </TableHeader>
               <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                {table.getRowModel().rows?.length ? (
+                {loading ? (
+                  [...Array(5)].map((_, i) => (
+                    <TableRow key={i}>
+                      {columns.map((_, j) => (
+                        <TableCell key={j}>
+                          <div className="h-6 w-full animate-pulse rounded bg-muted/50" />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : table.getRowModel().rows?.length ? (
                   <SortableContext
                     items={dataIds}
                     strategy={verticalListSortingStrategy}
