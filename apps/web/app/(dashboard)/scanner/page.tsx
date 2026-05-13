@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Html5Qrcode } from "html5-qrcode"
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode"
 import { toast } from "sonner"
 import axios from "axios"
 import { 
@@ -111,21 +111,46 @@ export default function ScannerPage() {
       }
 
       setIsScanning(true)
-      await new Promise(r => setTimeout(r, 100))
+      // Small delay to ensure the DOM element is ready
+      await new Promise(r => setTimeout(r, 200))
 
       const config = { 
-        fps: 10, 
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0 
+        fps: 20, // Faster scanning
+        qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
+          // Optimized for barcodes: wider than it is tall
+          const width = Math.min(viewfinderWidth * 0.85, 400);
+          const height = Math.min(viewfinderHeight * 0.3, 200);
+          return { width, height };
+        },
+        aspectRatio: 1.0,
+        experimentalFeatures: {
+          useBarCodeDetectorIfSupported: true
+        },
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.QR_CODE,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.ITF
+        ]
       }
       
       await html5QrCode.current.start(
         { facingMode: "environment" },
         config,
-        onScanSuccess,
-        () => {} 
+        (decodedText) => {
+          console.log("[Scanner] Scan success:", decodedText);
+          onScanSuccess(decodedText);
+        },
+        (errorMessage) => {
+          // Silent failure for frame-by-frame decode attempts
+        } 
       )
     } catch (err: any) {
+      console.error("[Scanner] Start failed:", err);
       setIsScanning(false)
       setError("Camera access failed.")
       toast.error("Could not start camera")
