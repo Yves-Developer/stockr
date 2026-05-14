@@ -190,7 +190,7 @@ export function StockMovementSheet({ product, id, initialValues, trigger, onSucc
                 {form.formState.errors.quantity && (
                   <p className="text-xs text-destructive">{form.formState.errors.quantity.message}</p>
                 )}
-                <p className="text-[10px] text-muted-foreground">Current available: {product.quantity}</p>
+                <p className="text-[10px] text-muted-foreground">Current available: {product?.quantity || 0}</p>
               </div>
 
               <div className="grid gap-2">
