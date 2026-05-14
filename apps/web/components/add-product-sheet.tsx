@@ -37,10 +37,12 @@ type ProductFormValues = z.infer<typeof productSchema>
 
 export function AddProductSheet({ 
   trigger, 
+  id,
   initialValues,
   onSuccess
 }: { 
   trigger?: React.ReactNode,
+  id?: string,
   initialValues?: Partial<ProductFormValues>,
   onSuccess?: () => void
 }) {
@@ -62,7 +64,7 @@ export function AddProductSheet({
     },
   })
 
-  // Update form values if initialValues change (e.g. new scan)
+  // Update form values if initialValues change (e.g. new scan or edit)
   React.useEffect(() => {
     if (initialValues) {
       form.reset({
@@ -70,7 +72,7 @@ export function AddProductSheet({
         ...initialValues
       })
     }
-  }, [initialValues, form])
+  }, [initialValues, form, open])
 
   React.useEffect(() => {
     if (open) {
@@ -120,17 +122,25 @@ export function AddProductSheet({
   async function onSubmit(values: ProductFormValues) {
     setLoading(true)
     try {
-      await api.post("/products", {
+      const payload = {
         ...values,
         category: values.categoryId,
         supplier: values.supplierId || undefined,
-      })
-      toast.success("Product created successfully")
+      }
+      
+      if (id) {
+        await api.put(`/products/${id}`, payload)
+        toast.success("Product updated successfully")
+      } else {
+        await api.post("/products", payload)
+        toast.success("Product created successfully")
+      }
+      
       setOpen(false)
       form.reset()
       if (onSuccess) onSuccess()
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to create product")
+      toast.error(error.response?.data?.message || `Failed to ${id ? 'update' : 'create'} product`)
     } finally {
       setLoading(false)
     }
@@ -149,9 +159,9 @@ export function AddProductSheet({
       <SheetContent className="sm:max-w-[800px] flex flex-col gap-0 p-0">
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
           <SheetHeader className="p-6 border-b">
-            <SheetTitle>Add New Product</SheetTitle>
+            <SheetTitle>{id ? 'Edit Product' : 'Add New Product'}</SheetTitle>
             <SheetDescription>
-              Create a new item in your inventory catalog.
+              {id ? 'Update product details in your catalog.' : 'Create a new item in your inventory catalog.'}
             </SheetDescription>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -246,7 +256,7 @@ export function AddProductSheet({
               className="w-full bg-primary text-black hover:bg-primary/90 font-semibold"
             >
               {loading && <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />}
-              Create Product
+              {id ? 'Update Product' : 'Create Product'}
             </Button>
           </SheetFooter>
         </form>

@@ -105,6 +105,7 @@ export const schema = z.object({
   target: z.string(),
   limit: z.string(),
   reviewer: z.string(),
+  _raw: z.any().optional(),
 })
 
 // Create a separate component for the drag handle
@@ -341,10 +342,18 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
 
 export function DataTable({
   data: initialData,
-  endpoint = "/products"
+  endpoint = "/products",
+  title = "Inventory Catalog",
+  description = "Manage your products and stock levels.",
+  action,
+  editAction
 }: {
   data: z.infer<typeof schema>[]
   endpoint?: string
+  title?: string
+  description?: string
+  action?: React.ReactNode
+  editAction?: (item: z.infer<typeof schema>, onSuccess: () => void) => React.ReactNode
 }) {
   const [data, setData] = React.useState<z.infer<typeof schema>[]>([])
   const [loading, setLoading] = React.useState(true)
@@ -366,6 +375,7 @@ export function DataTable({
             target: p.price.toString(),
             limit: p.quantity.toString(),
             reviewer: p.supplier?.name || "No Supplier",
+            _raw: p // Keep raw data for editing
           }))
         } else if (endpoint === "/suppliers") {
           mapped = rawData.map((s: any) => ({
@@ -376,6 +386,7 @@ export function DataTable({
             target: "0",
             limit: s.phone || "No Phone",
             reviewer: s.address || "No Address",
+            _raw: s
           }))
         } else if (endpoint === "/stock-movements") {
           mapped = rawData.map((m: any) => ({
@@ -386,6 +397,7 @@ export function DataTable({
             target: m.quantity.toString(),
             limit: new Date(m.date).toLocaleDateString(),
             reviewer: m.note || "-",
+            _raw: m
           }))
         }
         
@@ -400,6 +412,55 @@ export function DataTable({
       setLoading(false)
     }
   }, [initialData, endpoint])
+
+  const handleDelete = async (id: string | number) => {
+    if (!confirm("Are you sure you want to delete this item?")) return
+    
+    try {
+      await api.delete(`${endpoint}/${id}`)
+      toast.success("Item deleted successfully")
+      fetchData()
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to delete item")
+    }
+  }
+
+  const columnsWithActions: ColumnDef<z.infer<typeof schema>>[] = React.useMemo(() => [
+    ...columns.filter(c => c.id !== "actions"),
+    {
+      id: "actions",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          {editAction ? editAction(row.original, fetchData) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
+                  size="icon"
+                >
+                  <EllipsisVerticalIcon />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-32">
+                <DropdownMenuItem onClick={() => alert("Edit functionality coming soon! Use the product name to open the details drawer.")}>Edit</DropdownMenuItem>
+                <DropdownMenuItem>Make a copy</DropdownMenuItem>
+                <DropdownMenuItem>Favorite</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  variant="destructive" 
+                  onClick={() => handleDelete(row.original.id)}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      ),
+    }
+  ], [endpoint, editAction])
 
   React.useEffect(() => {
     fetchData()
@@ -429,7 +490,7 @@ export function DataTable({
 
   const table = useReactTable({
     data,
-    columns,
+    columns: columnsWithActions,
     state: {
       sorting,
       columnVisibility,
@@ -467,8 +528,8 @@ export function DataTable({
     <div className="w-full flex flex-col gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Inventory Catalog</h2>
-          <p className="text-sm text-muted-foreground">Manage your products and stock levels.</p>
+          <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
@@ -503,7 +564,7 @@ export function DataTable({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <AddProductSheet />
+          {action || <AddProductSheet onSuccess={fetchData} />}
         </div>
       </div>
       <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
@@ -538,7 +599,7 @@ export function DataTable({
                 {loading ? (
                   [...Array(5)].map((_, i) => (
                     <TableRow key={i}>
-                      {columns.map((_, j) => (
+                      {columnsWithActions.map((_, j) => (
                         <TableCell key={j}>
                           <div className="h-6 w-full animate-pulse rounded bg-muted/50" />
                         </TableCell>
@@ -557,7 +618,7 @@ export function DataTable({
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={columns.length}
+                      colSpan={columnsWithActions.length}
                       className="h-24 text-center"
                     >
                       No results.

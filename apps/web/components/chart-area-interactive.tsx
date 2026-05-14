@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import api from "@/lib/api"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
@@ -144,12 +145,24 @@ export function ChartAreaInteractive() {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState("90d")
   const [loading, setLoading] = React.useState(true)
+  const [data, setData] = React.useState<any[]>([])
 
   React.useEffect(() => {
-    // Simulate data fetching
-    const timer = setTimeout(() => setLoading(false), 800)
-    return () => clearTimeout(timer)
-  }, [])
+    async function fetchData() {
+      setLoading(true)
+      try {
+        const days = timeRange === "90d" ? 90 : timeRange === "30d" ? 30 : 7
+        const res = await api.get(`/dashboard/chart?days=${days}`)
+        setData(res.data.data)
+      } catch (error) {
+        console.error("Failed to fetch chart data", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchData()
+  }, [timeRange])
 
   React.useEffect(() => {
     if (isMobile) {
@@ -173,19 +186,7 @@ export function ChartAreaInteractive() {
     )
   }
 
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date)
-    const referenceDate = new Date("2024-06-30")
-    let daysToSubtract = 90
-    if (timeRange === "30d") {
-      daysToSubtract = 30
-    } else if (timeRange === "7d") {
-      daysToSubtract = 7
-    }
-    const startDate = new Date(referenceDate)
-    startDate.setDate(startDate.getDate() - daysToSubtract)
-    return date >= startDate
-  })
+  const filteredData = data.length > 0 ? data : []
 
   return (
     <Card className="@container/card">
