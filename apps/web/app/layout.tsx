@@ -24,21 +24,30 @@ export const metadata: Metadata = {
   description: "Turn your smartphone into a smart business assistant. EBM hardware replacement, stock tracking, and RRA compliance for Rwandan entrepreneurs.",
 };
 
+import { ThemeProvider } from "@/components/theme-provider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans antialiased dark", geist.variable)}>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans antialiased", geist.variable)}>
       <body className={cn("min-h-screen bg-background font-sans antialiased")}>
-        <React.Suspense>
-          <TopProgressBar />
-        </React.Suspense>
-        <TooltipProvider>
-          {children}
-          <Toaster richColors position="top-right" />
-        </TooltipProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <React.Suspense>
+            <TopProgressBar />
+          </React.Suspense>
+          <TooltipProvider>
+            {children}
+            <Toaster richColors position="top-right" />
+          </TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function SiteHeader() {
   const pathname = usePathname()
@@ -24,6 +25,9 @@ export function SiteHeader() {
           className="mx-2 data-[orientation=vertical]:h-4 bg-border/50"
         />
         <h1 className="text-sm font-semibold tracking-tight">{getTitle()}</h1>
+        <div className="ml-auto flex items-center gap-2">
+          <ThemeToggle variant="icon" />
+        </div>
       </div>
     </header>
   )

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BarChart3, ShieldCheck, Zap, LayoutDashboardIcon } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function LandingPage() {
   const { data: session, isPending } = authClient.useSession();
@@ -171,7 +172,10 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-24 flex flex-col items-center justify-between gap-6 border-t border-white/5 pt-8 md:flex-row">
-            <p className="text-xs text-muted-foreground/50">© 2026 Stockr Inc. Built with precision for Rwanda.</p>
+            <div className="flex flex-col items-center md:items-start gap-4">
+              <p className="text-xs text-muted-foreground/50">© 2026 Stockr Inc. Built with precision for Rwanda.</p>
+              <ThemeToggle variant="tabs" />
+            </div>
             <div className="flex gap-6">
               <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                 <span className="sr-only">Twitter</span>
