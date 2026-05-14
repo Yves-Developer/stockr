@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { CheckIcon, StarIcon, ShieldCheckIcon, RocketIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -58,9 +59,35 @@ const plans = [
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      <div className="container relative z-10 mx-auto px-4 py-24 md:py-32">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+    <div className="min-h-screen bg-background text-foreground selection:bg-indigo-500/30">
+      {/* Navigation */}
+      <nav className="fixed top-0 z-50 w-full border-b border-white/5 bg-background/50 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-primary">
+              <span className="font-bold text-black">S</span>
+            </div>
+            <span className="text-xl font-bold tracking-tight">Stockr</span>
+          </Link>
+          <div className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
+            <Link href="/#features" className="transition-colors hover:text-foreground">Features</Link>
+            <Link href="/#solutions" className="transition-colors hover:text-foreground">Solutions</Link>
+            <Link href="/pricing" className="text-foreground transition-colors">Pricing</Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/login">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">Log in</Button>
+            </Link>
+            <Link href="/register">
+              <Button size="sm" className="bg-white text-black hover:bg-white/90 font-semibold px-5">Sign up</Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      <div className="container relative z-10 mx-auto px-4 py-24 md:py-40">
+        <div className="absolute -top-40 left-1/2 -z-10 h-96 w-full -translate-x-1/2 bg-indigo-500/20 blur-[120px]" />
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-1000">
           <Badge variant="outline" className="px-4 py-1 text-primary border-primary/30 bg-primary/5 uppercase tracking-widest font-bold">
             Pricing Plans
           </Badge>
