@@ -1,9 +1,14 @@
+"use client"
+
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, BarChart3, ShieldCheck, Zap, LayoutDashboardIcon } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 export default function LandingPage() {
+  const { data: session, isPending } = authClient.useSession();
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-indigo-500/30">
       {/* Navigation */}
@@ -21,12 +26,25 @@ export default function LandingPage() {
             <Link href="/pricing" className="transition-colors hover:text-foreground">Pricing</Link>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">Log in</Button>
-            </Link>
-            <Link href="/login">
-              <Button size="sm" className="bg-white text-black hover:bg-white/90 font-semibold px-5">Sign up</Button>
-            </Link>
+            {isPending ? (
+              <div className="h-9 w-20 animate-pulse bg-white/5 rounded-md" />
+            ) : session ? (
+              <Link href="/dashboard">
+                <Button size="sm" className="bg-primary text-black hover:bg-primary/90 font-semibold px-5">
+                  <LayoutDashboardIcon className="mr-2 size-4" />
+                  Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">Log in</Button>
+                </Link>
+                <Link href="/login">
+                  <Button size="sm" className="bg-white text-black hover:bg-white/90 font-semibold px-5">Sign up</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
