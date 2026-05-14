@@ -13,11 +13,11 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-indigo-500/30">
       {/* Navigation */}
-      <nav className="fixed top-0 z-50 w-full border-b border-white/5 bg-background/50 backdrop-blur-xl">
+      <nav className="fixed top-0 z-50 w-full border-b border-border/10 bg-background/50 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-lg bg-primary">
-              <span className="font-bold text-black">S</span>
+              <span className="font-bold text-primary-foreground">S</span>
             </div>
             <span className="text-xl font-bold tracking-tight">Stockr</span>
           </div>
@@ -28,10 +28,10 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             {isPending ? (
-              <div className="h-9 w-20 animate-pulse bg-white/5 rounded-md" />
+              <div className="h-9 w-20 animate-pulse bg-muted rounded-md" />
             ) : session ? (
               <Link href="/dashboard">
-                <Button size="sm" className="bg-primary text-black hover:bg-primary/90 font-semibold px-5">
+                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold px-5">
                   <LayoutDashboardIcon className="mr-2 size-4" />
                   Dashboard
                 </Button>
@@ -42,7 +42,7 @@ export default function LandingPage() {
                   <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">Log in</Button>
                 </Link>
                 <Link href="/login">
-                  <Button size="sm" className="bg-white text-black hover:bg-white/90 font-semibold px-5">Sign up</Button>
+                  <Button size="sm" className="bg-foreground text-background hover:bg-foreground/90 font-semibold px-5">Sign up</Button>
                 </Link>
               </>
             )}
@@ -56,23 +56,23 @@ export default function LandingPage() {
           <div className="text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
               <span className="size-1.5 rounded-full bg-primary animate-pulse" />
-              Run Your Business Smarter,with Stockr
+              Run Your Business Smarter with Stockr
             </div>
             <h1 className="mx-auto max-w-4xl text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
               The smart business engine <br />
-              <span className="bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent italic font-serif">for Rwandan entrepreneurs</span>
+              <span className="bg-gradient-to-b from-foreground to-foreground/40 bg-clip-text text-transparent italic font-serif">for Rwandan entrepreneurs</span>
             </h1>
             <p className="mx-auto mt-8 max-w-2xl text-lg text-muted-foreground sm:text-xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-300">
-              Turn your smartphone into a high-performance business assistant. digital EBM , real-time inventory, and RRA compliance built for speed.
+              Turn your smartphone into a high-performance business assistant. Digital EBM, real-time inventory, and RRA compliance built for speed.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-500">
               <Link href="/register">
-                <Button size="lg" className="h-12 px-8 bg-primary text-black hover:bg-primary/90">
+                <Button size="lg" className="h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90">
                   Get started <ArrowRight className="ml-2 size-4" />
                 </Button>
               </Link>
               <Link href="#features">
-                <Button size="lg" variant="outline" className="h-12 px-8 border-white/10 hover:bg-white/5">
+                <Button size="lg" variant="outline" className="h-12 px-8 border-border hover:bg-accent">
                   Watch demo
                 </Button>
               </Link>
@@ -81,14 +81,14 @@ export default function LandingPage() {
 
           {/* Product Mockup */}
           <div className="relative mt-12 md:mt-16 animate-in fade-in zoom-in-95 duration-1000 delay-700">
-            <div className="absolute -top-40 left-1/2 -z-10 h-96 w-full -translate-x-1/2 bg-indigo-500/20 blur-[120px]" />
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2 shadow-2xl backdrop-blur-sm">
+            <div className="absolute -top-40 left-1/2 -z-10 h-96 w-full -translate-x-1/2 bg-primary/20 blur-[120px]" />
+            <div className="overflow-hidden rounded-2xl border border-border bg-card/50 p-2 shadow-2xl backdrop-blur-sm">
               <Image
                 src="/Landing_page_pic.png"
                 alt="Stockr Dashboard Mockup"
                 width={2400}
                 height={1600}
-                className="rounded-xl border border-white/10 shadow-2xl"
+                className="rounded-xl border border-border shadow-2xl"
                 priority
               />
             </div>
@@ -124,10 +124,10 @@ export default function LandingPage() {
               },
             ].map((feature, i) => (
               <div key={feature.title}
-                className="group relative rounded-2xl border border-white/5 bg-white/5 p-8 transition-all hover:border-white/10 hover:bg-white/[0.07] animate-in fade-in slide-in-from-bottom-8 duration-1000"
+                className="group relative rounded-2xl border border-border bg-card/50 p-8 transition-all hover:border-primary/30 hover:bg-card/80 animate-in fade-in slide-in-from-bottom-8 duration-1000"
                 style={{ animationDelay: `${i * 150 + 1200}ms`, animationFillMode: 'forwards' }}
               >
-                <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all group-hover:bg-primary group-hover:text-black group-hover:shadow-[0_0_15px_rgba(183,231,58,0.5)]">
+                <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-[0_0_15px_rgba(183,231,58,0.5)]">
                   <feature.icon className="size-6" />
                 </div>
                 <h3 className="text-xl font-semibold tracking-tight">{feature.title}</h3>
@@ -139,12 +139,12 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-48 border-t border-white/5 py-24">
+      <footer className="mt-48 border-t border-border/50 py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-between gap-12 md:flex-row">
             <div className="flex flex-col items-center md:items-start gap-4">
               <div className="flex items-center gap-2">
-                <div className="flex size-6 items-center justify-center rounded bg-primary text-black font-bold text-xs">S</div>
+                <div className="flex size-6 items-center justify-center rounded bg-primary text-primary-foreground font-bold text-xs">S</div>
                 <span className="font-bold tracking-tight">Stockr</span>
               </div>
               <p className="text-sm text-muted-foreground max-w-xs text-center md:text-left">
@@ -171,7 +171,7 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          <div className="mt-24 flex flex-col items-center justify-between gap-6 border-t border-white/5 pt-8 md:flex-row">
+          <div className="mt-24 flex flex-col items-center justify-between gap-6 border-t border-border/50 pt-8 md:flex-row">
             <div className="flex flex-col items-center md:items-start gap-4">
               <p className="text-xs text-muted-foreground/50">© 2026 Stockr Inc. Built with precision for Rwanda.</p>
               <ThemeToggle variant="tabs" />
