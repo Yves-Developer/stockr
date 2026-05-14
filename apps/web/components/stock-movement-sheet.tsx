@@ -41,18 +41,20 @@ const movementSchema = z.object({
 type MovementFormValues = z.infer<typeof movementSchema>
 
 interface StockMovementSheetProps {
-  product: {
+  product?: {
     _id: string
     name: string
     sku: string
     quantity: number
     price: number
   }
+  id?: string
+  initialValues?: Partial<MovementFormValues>
   trigger?: React.ReactNode
   onSuccess?: () => void
 }
 
-export function StockMovementSheet({ product, trigger, onSuccess }: StockMovementSheetProps) {
+export function StockMovementSheet({ product, id, initialValues, trigger, onSuccess }: StockMovementSheetProps) {
   const [open, setOpen] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [receiptOpen, setReceiptOpen] = React.useState(false)
@@ -61,53 +63,69 @@ export function StockMovementSheet({ product, trigger, onSuccess }: StockMovemen
   const form = useForm({
     resolver: zodResolver(movementSchema),
     defaultValues: {
-      type: "IN",
-      quantity: 1,
-      reason: "purchase",
-      note: "",
+      type: initialValues?.type || "IN",
+      quantity: initialValues?.quantity || 1,
+      reason: initialValues?.reason || "purchase",
+      note: initialValues?.note || "",
     },
   })
+
+  // Update form values if initialValues change
+  React.useEffect(() => {
+    if (initialValues) {
+      form.reset({
+        ...form.getValues(),
+        ...initialValues
+      })
+    }
+  }, [initialValues, form, open])
 
   async function onSubmit(values: MovementFormValues) {
     setLoading(true)
     try {
-      // 1. Record the movement in our DB
-      await api.post("/stock-movements", {
-        ...values,
-        product: product._id,
-      })
-      
-      // 2. If it's a sale, report to RRA (Mock)
-      if (values.type === "OUT" && values.reason === "sale") {
-        try {
-          const rraRes = await api.post("/rra/report-sale", {
-            productName: product.name,
-            quantity: values.quantity,
-            price: product.price,
-          })
-          
-          setReceiptData({
-            productName: product.name,
-            quantity: values.quantity,
-            price: product.price,
-            ebmNumber: rraRes.data.ebmNumber,
-            timestamp: new Date().toISOString(),
-          })
-          setReceiptOpen(true)
-          toast.success("Sale reported to RRA (EBM)")
-        } catch (rraError) {
-          console.error("RRA Reporting failed", rraError)
-          toast.error("Stock updated, but RRA reporting failed.")
-        }
+      if (id) {
+        // Update existing movement
+        await api.put(`/stock-movements/${id}`, values)
+        toast.success("Stock movement updated")
       } else {
-        toast.success(`Stock ${values.type.toLowerCase()} recorded for ${product.name}`)
+        // Record the movement in our DB
+        await api.post("/stock-movements", {
+          ...values,
+          product: product?._id,
+        })
+        
+        // 2. If it's a sale, report to RRA (Mock)
+        if (values.type === "OUT" && values.reason === "sale" && product) {
+          try {
+            const rraRes = await api.post("/rra/report-sale", {
+              productName: product.name,
+              quantity: values.quantity,
+              price: product.price,
+            })
+            
+            setReceiptData({
+              productName: product.name,
+              quantity: values.quantity,
+              price: product.price,
+              ebmNumber: rraRes.data.ebmNumber,
+              timestamp: new Date().toISOString(),
+            })
+            setReceiptOpen(true)
+            toast.success("Sale reported to RRA (EBM)")
+          } catch (rraError) {
+            console.error("RRA Reporting failed", rraError)
+            toast.error("Stock updated, but RRA reporting failed.")
+          }
+        } else {
+          toast.success(`Stock ${values.type.toLowerCase()} recorded`)
+        }
       }
 
       setOpen(false)
       form.reset()
       onSuccess?.()
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to record movement")
+      toast.error(error.response?.data?.message || `Failed to ${id ? 'update' : 'record'} movement`)
     } finally {
       setLoading(false)
     }
@@ -128,9 +146,11 @@ export function StockMovementSheet({ product, trigger, onSuccess }: StockMovemen
         <SheetContent className="sm:max-w-[400px]">
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full gap-6">
             <SheetHeader>
-              <SheetTitle>Stock Movement</SheetTitle>
+              <SheetTitle>{id ? 'Edit Stock Movement' : 'Stock Movement'}</SheetTitle>
               <SheetDescription>
-                Record a stock transaction for <span className="font-semibold text-foreground">{product.name}</span> ({product.sku}).
+                {id 
+                  ? 'Update this stock transaction details.' 
+                  : <>Record a stock transaction for <span className="font-semibold text-foreground">{product?.name}</span> ({product?.sku}).</>}
               </SheetDescription>
             </SheetHeader>
 
@@ -221,7 +241,7 @@ export function StockMovementSheet({ product, trigger, onSuccess }: StockMovemen
                 )}
               >
                 {loading && <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />}
-                Confirm {type === "IN" ? "Restock" : "Movement"}
+                {id ? 'Update Movement' : `Confirm ${type === "IN" ? "Restock" : "Movement"}`}
               </Button>
             </SheetFooter>
           </form>
