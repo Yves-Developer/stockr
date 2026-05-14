@@ -87,14 +87,14 @@ const data = {
   documents: [
     {
       name: "RRA Reports",
-      url: "#",
+      url: "/reports/rra",
       icon: (
         <DatabaseIcon />
       ),
     },
     {
       name: "Inventory Audit",
-      url: "#",
+      url: "/reports/audit",
       icon: (
         <FileChartColumnIcon />
       ),
