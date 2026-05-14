@@ -1,3 +1,5 @@
+"use client"
+
 import { DataTable } from "@/components/data-table"
 import { AddProductSheet } from "@/components/add-product-sheet"
 import { Button } from "@/components/ui/button"

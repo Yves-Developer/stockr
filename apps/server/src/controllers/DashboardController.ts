@@ -55,3 +55,47 @@ export const getDashboardStats = async (_req: Request, res: Response) => {
     res.status(500).json({ success: false, message: "Server error", error });
   }
 };
+export const getChartData = async (req: Request, res: Response) => {
+  try {
+    const days = parseInt(req.query.days as string) || 90;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const movements = await StockMovement.aggregate([
+      {
+        $match: {
+          date: { $gte: startDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$date" },
+          },
+          in: {
+            $sum: {
+              $cond: [{ $eq: ["$type", "IN"] }, "$quantity", 0],
+            },
+          },
+          out: {
+            $sum: {
+              $cond: [{ $eq: ["$type", "OUT"] }, "$quantity", 0],
+            },
+          },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: movements.map((m) => ({
+        date: m._id,
+        desktop: m.in, 
+        mobile: m.out,
+      })),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error });
+  }
+};
