@@ -1,9 +1,15 @@
+"use client"
+
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, BarChart3, ShieldCheck, Zap, LayoutDashboardIcon } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function LandingPage() {
+  const { data: session, isPending } = authClient.useSession();
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-indigo-500/30">
       {/* Navigation */}
@@ -21,12 +27,25 @@ export default function LandingPage() {
             <Link href="/pricing" className="transition-colors hover:text-foreground">Pricing</Link>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">Log in</Button>
-            </Link>
-            <Link href="/login">
-              <Button size="sm" className="bg-white text-black hover:bg-white/90 font-semibold px-5">Sign up</Button>
-            </Link>
+            {isPending ? (
+              <div className="h-9 w-20 animate-pulse bg-white/5 rounded-md" />
+            ) : session ? (
+              <Link href="/dashboard">
+                <Button size="sm" className="bg-primary text-black hover:bg-primary/90 font-semibold px-5">
+                  <LayoutDashboardIcon className="mr-2 size-4" />
+                  Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">Log in</Button>
+                </Link>
+                <Link href="/login">
+                  <Button size="sm" className="bg-white text-black hover:bg-white/90 font-semibold px-5">Sign up</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -153,7 +172,10 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-24 flex flex-col items-center justify-between gap-6 border-t border-white/5 pt-8 md:flex-row">
-            <p className="text-xs text-muted-foreground/50">© 2026 Stockr Inc. Built with precision for Rwanda.</p>
+            <div className="flex flex-col items-center md:items-start gap-4">
+              <p className="text-xs text-muted-foreground/50">© 2026 Stockr Inc. Built with precision for Rwanda.</p>
+              <ThemeToggle variant="tabs" />
+            </div>
             <div className="flex gap-6">
               <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                 <span className="sr-only">Twitter</span>

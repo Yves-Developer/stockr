@@ -2,9 +2,21 @@
 
 import { LoginForm } from "@/components/login-form"
 import { GalleryVerticalEndIcon } from "lucide-react"
-import { Suspense } from "react"
+import { Suspense, useEffect } from "react"
+import { authClient } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
+  const { data: session, isPending } = authClient.useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (session && !isPending) {
+      router.push("/dashboard")
+    }
+  }, [session, isPending, router])
+
+  if (isPending) return null // Or a loader
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col gap-6">

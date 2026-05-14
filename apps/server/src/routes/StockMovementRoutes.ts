@@ -15,7 +15,7 @@ router.get("/", protect, getAllStockMovements);
 router.get("/:id", protect, getStockMovementById);
 router.get("/product/:productId", protect, getMovementsByProduct);
 router.post("/", protect, authorize("admin", "manager", "staff"), createStockMovement);
-router.put("/:id", protect, authorize("admin", "manager"), updateStockMovement);
+router.put("/:id", protect, authorize("admin", "manager", "staff"), updateStockMovement);
 router.delete("/:id", protect, authorize("admin"), deleteStockMovement);
 
 export default router;
