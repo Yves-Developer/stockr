@@ -47,17 +47,21 @@ export default function LandingPage() {
               Turn your smartphone into a high-performance business assistant. digital EBM , real-time inventory, and RRA compliance built for speed.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-500">
-              <Button size="lg" className="h-12 px-8 bg-primary text-black hover:bg-primary/90">
-                Get started <ArrowRight className="ml-2 size-4" />
-              </Button>
-              <Button size="lg" variant="outline" className="h-12 px-8 border-white/10 hover:bg-white/5">
-                Watch demo
-              </Button>
+              <Link href="/register">
+                <Button size="lg" className="h-12 px-8 bg-primary text-black hover:bg-primary/90">
+                  Get started <ArrowRight className="ml-2 size-4" />
+                </Button>
+              </Link>
+              <Link href="#features">
+                <Button size="lg" variant="outline" className="h-12 px-8 border-white/10 hover:bg-white/5">
+                  Watch demo
+                </Button>
+              </Link>
             </div>
           </div>
 
           {/* Product Mockup */}
-          <div className="relative mt-20 md:mt-32 animate-in fade-in zoom-in-95 duration-1000 delay-700">
+          <div className="relative mt-12 md:mt-16 animate-in fade-in zoom-in-95 duration-1000 delay-700">
             <div className="absolute -top-40 left-1/2 -z-10 h-96 w-full -translate-x-1/2 bg-indigo-500/20 blur-[120px]" />
             <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2 shadow-2xl backdrop-blur-sm">
               <Image
@@ -131,15 +135,15 @@ export default function LandingPage() {
             <div className="flex flex-wrap justify-center gap-12 text-sm font-medium text-muted-foreground">
               <div className="flex flex-col gap-4">
                 <span className="text-foreground">Product</span>
-                <a href="#" className="hover:text-foreground transition-colors">Features</a>
-                <a href="#" className="hover:text-foreground transition-colors">Integrations</a>
+                <Link href="#features" className="hover:text-foreground transition-colors">Features</Link>
+                <Link href="#features" className="hover:text-foreground transition-colors">Integrations</Link>
                 <Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
               </div>
               <div className="flex flex-col gap-4">
                 <span className="text-foreground">Company</span>
-                <a href="#" className="hover:text-foreground transition-colors">About</a>
-                <a href="#" className="hover:text-foreground transition-colors">Blog</a>
-                <a href="#" className="hover:text-foreground transition-colors">Careers</a>
+                <Link href="#" className="hover:text-foreground transition-colors">About</Link>
+                <Link href="#" className="hover:text-foreground transition-colors">Blog</Link>
+                <Link href="#" className="hover:text-foreground transition-colors">Careers</Link>
               </div>
               <div className="flex flex-col gap-4">
                 <span className="text-foreground">Legal</span>
